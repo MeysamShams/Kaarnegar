@@ -10,3 +10,5 @@
 *.ico binary
 *.png binary
 *.pdf binary
+*.nsh text eol=lf
+*.ps1 text eol=crlf

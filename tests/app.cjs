@@ -8,7 +8,7 @@ const userDir=fs.mkdtempSync(path.join(os.tmpdir(),'kaarnegar-test-'));
 const pdf=path.join(artifacts,'گزارش-آزمایشی.pdf');
 let app;
 const errors=[];
-async function launch(){const env={...process.env,KAARNEGAR_DATA_DIR:userDir,KAARNEGAR_TEST_PDF:pdf};delete env.ELECTRON_RUN_AS_NODE;app=await electron.launch({args:[path.resolve('.')],env});app.process().stdout.on('data',data=>process.stdout.write(data));const page=await app.firstWindow();page.on('pageerror',e=>errors.push(e.message));await page.getByRole('heading',{name:'زمان خود را ارزشمند کنید.'}).waitFor();return page}
+async function launch(){const env={...process.env,KAARNEGAR_DATA_DIR:userDir,KAARNEGAR_TEST_PDF:pdf};delete env.ELECTRON_RUN_AS_NODE;const executablePath=process.env.KAARNEGAR_TEST_EXECUTABLE;app=await electron.launch({executablePath,args:executablePath?[]:[path.resolve('.')],env});const page=await app.firstWindow();page.on('pageerror',e=>errors.push(e.message));await page.getByRole('heading',{name:'زمان خود را ارزشمند کنید.'}).waitFor();return page}
 (async()=>{try{
  let page=await launch();
  assert.equal(await page.evaluate(()=>document.documentElement.dir),'rtl');

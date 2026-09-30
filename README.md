@@ -13,9 +13,11 @@
 - خروجی PDF فارسی با فونت جاسازی‌شده و متن قابل انتخاب
 - پشتیبان‌گیری و بازیابی فایل JSON
 
-## اجرا
+## نصب و اجرا
 
-فایل `release/Kaarnegar.exe` را باز کنید؛ نیازی به نصب یا اینترنت نیست. میان‌بر «کارنگار» روی دسکتاپ به این فایل اشاره می‌کند.
+برای نصب، `Kaarnegar-Setup-1.0.0.exe` را از بخش Releases گیت‌هاب دانلود و اجرا کنید. نصب‌کننده امکان انتخاب زبان فارسی یا انگلیسی و مسیر نصب را دارد و میان‌بر «کارنگار» را روی دسکتاپ و منوی شروع ایجاد می‌کند. برنامه و فایل اجرایی آن دارای آیکون اختصاصی هستند.
+
+برای اجرای بدون نصب، از نسخهٔ قابل‌حمل `Kaarnegar.exe` استفاده کنید. فایل‌های ساخته‌شده در پوشهٔ `release` قرار می‌گیرند. نیازی به Node.js، اینترنت یا نصب فونت ندارید؛ آراد در برنامه و فایل‌های PDF جاسازی شده است. حذف برنامه، اطلاعات کار را پاک نمی‌کند.
 
 در تنظیمات نام و نرخ ساعتی خود را ذخیره کنید، سپس عنوان فعالیت را وارد و زمان‌سنج را شروع کنید. «توقف و ذخیره» فعالیت را وارد گزارش می‌کند. مکث، بستن برنامه و خواب دستگاه، زمان‌سنج را مکث می‌کنند؛ برای ادامه دکمهٔ ادامه را بزنید.
 
@@ -40,10 +42,33 @@ npm run test:app
 npm run package
 ```
 
+`npm run package` builds the Windows x64 installer and portable executable. `npm run package:portable` builds only the portable executable. The committed icon assets include seven Windows sizes (16–256 px); regenerate them with `npm run icons` on Windows.
+
+The NSIS build hook corrects electron-builder's `Persian`/`Farsi` language-name mismatch without editing installed dependencies. `build/installer.nsh` supplies the missing Persian user-selection translations. Installer warnings remain errors.
+
 `npm run dev` provides a browser preview. Native PDF saving, restore dialogs and always-on-top are desktop features. Production runs in Electron with context isolation, sandboxing and no renderer Node access. User data is local; no server or analytics is used.
 
 Application tests use an isolated temporary data directory. Screenshots and an actual Persian PDF are generated in `test-artifacts`. They never write to your real work history.
 
+To run the same workflow against a packaged or installed executable, set `KAARNEGAR_TEST_EXECUTABLE` to its absolute path before running `npm run test:app`. The PDF test checks for actual embedded Arad font resources. Version 1.0.0 was also installed into a temporary folder and its installed executable passed the workflow test; the temporary installation was removed afterward.
+
 Arad font: [official source](https://github.com/MDarvishi5124/Arad), bundled under the SIL Open Font License. License included in `public/fonts/OFL.txt`. PDF rendering uses [Electron printToPDF](https://www.electronjs.org/docs/latest/api/web-contents/#contentsprinttopdfoptions).
 
 The application source is MIT licensed; the bundled font retains its own OFL license. Sample screenshots show fictional test entries.
+
+## Publish on GitHub
+
+Create an empty GitHub repository named `kaarnegar`, then run these commands inside this project, replacing `YOUR_USERNAME` with your account:
+
+```powershell
+git remote add origin https://github.com/YOUR_USERNAME/kaarnegar.git
+git push -u origin main
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+The included GitHub Actions workflow builds and tests on Windows when a version tag is pushed, or when run manually. Download the `Kaarnegar-Windows` artifact from Actions. Create a GitHub Release for `v1.0.0` and attach `Kaarnegar-Setup-1.0.0.exe` and `Kaarnegar.exe`. Build outputs and personal work data are excluded from Git; distribute binaries through Releases.
+
+The generated executables are unsigned. To distribute signed builds, configure your Windows code-signing credentials and enable `build.win.signExecutable`. The source repository contains no signing certificates or account credentials.
+
+![گزارش زمان و درآمد](docs/reports.png)
