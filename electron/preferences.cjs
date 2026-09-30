@@ -28,4 +28,8 @@ function writePreferences(file, value) {
 function loginOptions(app, env = process.env) {
   return { path: env.PORTABLE_EXECUTABLE_FILE || process.execPath, args: app.isPackaged ? [] : [app.getAppPath()], name: 'Kaarnegar' };
 }
-module.exports = { readPreferences, writePreferences, loginOptions };
+function startupEnabled(app, options) {
+  const settings = app.getLoginItemSettings({ path: `"${options.path}"`, args: options.args });
+  return settings.launchItems?.some(item => item.name === options.name && item.scope === 'user' && item.enabled && item.args.length === options.args.length && item.args.every((arg, index) => arg === options.args[index])) ?? false;
+}
+module.exports = { readPreferences, writePreferences, loginOptions, startupEnabled };

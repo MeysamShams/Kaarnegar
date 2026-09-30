@@ -55,7 +55,7 @@ async function launch(compact=false){const env={...process.env,KAARNEGAR_DATA_DI
  // Stub startup APIs so the test never edits this computer's login registration.
  await app.evaluate(({app})=>{
    let enabled=false; globalThis.startupCalls=[];
-   app.getLoginItemSettings=()=>({openAtLogin:enabled});
+   app.getLoginItemSettings=options=>({openAtLogin:false,launchItems:enabled?[{name:'Kaarnegar',scope:'user',enabled:true,args:options.args}]:[]});
    app.setLoginItemSettings=options=>{enabled=options.openAtLogin;globalThis.startupCalls.push(options)};
  });
  await page.locator('#theme').selectOption('dark');

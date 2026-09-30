@@ -37,6 +37,7 @@ test('PDF uses Persian text, escapes task titles and includes earnings and date 
  const html=reportHTML([{...entries[0],title:'<script>alert(1)</script>'}], '2026-09-29','2026-09-30','مریم & علی');
  assert.ok(html.includes('۳۷۵٬۰۰۰'));assert.ok(html.includes('۸ مهر ۱۴۰۵'));assert.ok(html.includes('&lt;script&gt;'));
  assert.ok(!html.includes('<script>'));assert.ok(html.includes('dir="rtl"'));assert.ok(html.includes('مریم &amp; علی'));
+ assert.ok(html.includes('میزان کارکر'));assert.ok(!html.includes('خلاصهٔ فعالیت‌ها'));assert.ok(!html.includes('ثبت دستی'));assert.ok(!html.includes('<th style="width:14%">'));
 });
 test('storage rejects invalid backups and duplicate entries',()=>{
  const state={version:1,rate:250000,name:'مریم',entries,active:null};assert.equal(validate(state),state);

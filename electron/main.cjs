@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, powerMonitor, Menu, nativeTheme, screen } = require('electron');
 const fs = require('node:fs');
 const path = require('node:path');
-const { readPreferences, writePreferences, loginOptions } = require('./preferences.cjs');
+const { readPreferences, writePreferences, loginOptions, startupEnabled } = require('./preferences.cjs');
 const { validate } = require('./validation.cjs');
 const { initializeTray, updateTrayLanguage, showApp, destroyTray } = require('./tray.cjs');
 if (process.env.KAARNEGAR_DATA_DIR) app.setPath('userData', process.env.KAARNEGAR_DATA_DIR);
@@ -14,8 +14,7 @@ const nativeText = (fa, en) => preferences?.language === 'en' ? en : fa;
 const startupOptions = () => loginOptions(app);
 const launchOnStartup = () => {
   if (process.platform !== 'win32') return false;
-  const login = app.getLoginItemSettings(startupOptions());
-  return login.openAtLogin && login.executableWillLaunchAtLogin !== false;
+  return startupEnabled(app, startupOptions());
 };
 function saveWindow() {
   if (!win || win.isDestroyed() || switchingMode) return;
@@ -109,7 +108,7 @@ if (locked) app.whenReady().then(() => {
     }
     const next = { ...preferences, theme: value.theme, language:value.language };
     try { writePreferences(preferencesPath(), next); }
-    catch (e) { if (startupChanged) app.setLoginItemSettings({ ...startupOptions(), openAtLogin: previousStartup }); throw e; }
+    catch (e) { if (startupChanged) app.setLoginItemSettings({ ...startupOptions(), openAtLogin: previousStartup, enabled: previousStartup }); throw e; }
     preferences = next; updateTrayLanguage(preferences.language); nativeTheme.themeSource = preferences.theme;
     return { theme: preferences.theme, language:preferences.language, launchOnStartup: launchOnStartup(), compact };
   });

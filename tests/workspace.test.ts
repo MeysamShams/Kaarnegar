@@ -29,6 +29,7 @@ test('old history migrates without changing rates, duration, or currency',()=>{
 test('English PDFs use English labels, Gregorian dates, filtered context, and escaped names',()=>{
  const html=reportHTML([usd,eur],'2026-09-01','2026-09-30','<Jane>',{language:'en',organizations:state.organizations,projects:state.projects,organizationId:'a',projectId:'p'});
  assert.match(html,/lang="en" dir="ltr"/);assert.match(html,/September 30, 2026/);assert.match(html,/Acme &amp; Co/);assert.match(html,/Website/);assert.match(html,/80 USD/);assert.match(html,/40 EUR/);assert.match(html,/&lt;Jane&gt;/);assert.ok(!html.includes('<Jane>'));assert.equal(reportFilename('2026-09-01','2026-09-30','en'),'2026-09-01_to_2026-09-30.pdf');assert.equal(language(),'en');
+ assert.ok(!html.includes('Task summary'));assert.ok(!html.includes('Manual entry'));assert.ok(!html.includes('<th style="width:17%">Rate'));assert.ok(!html.includes('<th style="width:20%">Earnings'));
 });
 test('localization includes every extracted Persian interface message',()=>{
  const fs=createRequire(import.meta.url)('node:fs'), ts=createRequire(import.meta.url)('typescript');

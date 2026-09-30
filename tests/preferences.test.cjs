@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
-const { readPreferences, writePreferences, loginOptions } = require('../electron/preferences.cjs');
+const { readPreferences, writePreferences, loginOptions, startupEnabled } = require('../electron/preferences.cjs');
 
 test('preferences restore compact geometry and recover a damaged file from backup', () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'kaarnegar-prefs-'));
@@ -32,4 +32,16 @@ test('startup targets the persistent portable launcher, installed exe, or develo
   assert.deepEqual(loginOptions(app, { PORTABLE_EXECUTABLE_FILE: 'C:\\My Apps\\Kaarnegar.exe' }), { path: 'C:\\My Apps\\Kaarnegar.exe', args: [], name: 'Kaarnegar' });
   assert.equal(loginOptions(app, {}).path, process.execPath);
   assert.deepEqual(loginOptions({ ...app, isPackaged: false }, {}).args, ['C:\\Projects\\Kaarnegar']);
+});
+
+test('startup checks the named Windows launch item and its arguments', () => {
+  const options = { path: 'C:\\My Apps\\Kaarnegar.exe', args: [], name: 'Kaarnegar' };
+  let checked;
+  const app = { getLoginItemSettings: value => { checked = value; return { openAtLogin: false, launchItems: [{ name: 'Kaarnegar', scope: 'user', enabled: true, args: [] }] }; } };
+  assert.equal(startupEnabled(app, options), true);
+  assert.deepEqual(checked, { path: '"C:\\My Apps\\Kaarnegar.exe"', args: [] });
+  app.getLoginItemSettings = () => ({ openAtLogin: true, launchItems: [{ name: 'Other', scope: 'user', enabled: true, args: [] }] });
+  assert.equal(startupEnabled(app, options), false);
+  app.getLoginItemSettings = () => ({ launchItems: [{ name: 'Kaarnegar', scope: 'user', enabled: false, args: [] }] });
+  assert.equal(startupEnabled(app, options), false);
 });
