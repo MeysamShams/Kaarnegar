@@ -1,7 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('desktop', {
   load: () => ipcRenderer.invoke('load'), save: state => ipcRenderer.invoke('save', state),
-  exportPDF: html => ipcRenderer.invoke('pdf', html), backup: () => ipcRenderer.invoke('backup'),
+  exportPDF: (html, filename) => ipcRenderer.invoke('pdf', html, filename), backup: () => ipcRenderer.invoke('backup'),
   importBackup: () => ipcRenderer.invoke('import'), widget: compact => ipcRenderer.invoke('widget', compact),
   windowControl: action => ipcRenderer.invoke('window-control', action),
   isMaximized: () => ipcRenderer.invoke('window-maximized'),

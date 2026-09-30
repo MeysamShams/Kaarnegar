@@ -91,9 +91,10 @@ if (locked) app.whenReady().then(() => {
     if (imported.active) imported.active.runningSince = null;
     write(imported); return imported;
   });
-  ipcMain.handle('pdf', async (_, html) => {
+  ipcMain.handle('pdf', async (_, html, filename) => {
     if (typeof html !== 'string' || html.length > 10e6) throw Error('گزارش بیش از حد بزرگ است.');
-    const result = process.env.KAARNEGAR_TEST_PDF ? { filePath: process.env.KAARNEGAR_TEST_PDF } : await dialog.showSaveDialog(win, { title: 'ذخیرهٔ گزارش PDF', defaultPath: 'گزارش-کارنگار.pdf', filters: [{ name: 'PDF', extensions: ['pdf'] }] });
+    if (typeof filename !== 'string' || !/^[۰-۹0-9]{4}-[۰-۹0-9]{2}-[۰-۹0-9]{2}_تا_[۰-۹0-9]{4}-[۰-۹0-9]{2}-[۰-۹0-9]{2}\.pdf$/u.test(filename)) throw Error('نام گزارش معتبر نیست.');
+    const result = process.env.KAARNEGAR_TEST_PDF ? { filePath: process.env.KAARNEGAR_TEST_PDF } : await dialog.showSaveDialog(win, { title: 'ذخیرهٔ گزارش PDF', defaultPath: filename, filters: [{ name: 'PDF', extensions: ['pdf'] }] });
     if (result.canceled) return false;
     const font = fs.readFileSync(path.join(__dirname, '../dist/fonts/Arad-Regular.woff2')).toString('base64');
     const bold = fs.readFileSync(path.join(__dirname, '../dist/fonts/Arad-Bold.woff2')).toString('base64');

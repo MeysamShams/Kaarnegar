@@ -1,5 +1,8 @@
 import { dateLabel, duration, groupTasks, number, totals, type Entry } from './model';
 export const escape = (s: string) => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
+export function reportFilename(start: string, end: string) {
+  return `${dateLabel(start).replaceAll('/', '-')}_تا_${dateLabel(end).replaceAll('/', '-')}.pdf`;
+}
 export function reportHTML(entries: Entry[], start: string, end: string, name: string) {
   const total=totals(entries), groups=groupTasks(entries);
   return `<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src data:"><style>/* FONT */
