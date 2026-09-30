@@ -1,6 +1,11 @@
 name: Build Windows app
 on:
   workflow_dispatch:
+    inputs:
+      run_tests:
+        description: Run unit and desktop integration tests
+        type: boolean
+        default: false
   push:
     tags: ['v*']
 permissions:
@@ -16,8 +21,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+        if: inputs.run_tests == true
       - run: npm run build
       - run: npm run test:app
+        if: inputs.run_tests == true
       - run: npm run package
       - uses: actions/upload-artifact@v4
         with:

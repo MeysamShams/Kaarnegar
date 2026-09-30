@@ -142,7 +142,7 @@ To test an installed or portable executable, set `KAARNEGAR_TEST_EXECUTABLE` to 
 
 ### Building a release
 
-Build outputs are written to `release/`. The included GitHub Actions workflows automate Windows builds and release publishing; see [the workflows](.github/workflows) for their triggers.
+Build outputs are written to `release/`. The included GitHub Actions workflows automate Windows builds and release publishing. Tests are optional through the manual build's `run_tests` input; tag builds skip tests. See [the workflows](.github/workflows) for their triggers.
 
 The NSIS build helper handles the Persian/Farsi language-name mismatch, and `build/installer.nsh` supplies missing Persian installer strings. Bundled icon assets cover Windows sizes from 16 to 256 pixels.
 
