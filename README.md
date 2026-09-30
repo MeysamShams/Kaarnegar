@@ -7,7 +7,7 @@
 <p align="center">An offline Windows time tracker for organizations and projects, with Persian and English interfaces, local reports, and multiple currencies.</p>
 <p align="center"><a href="../../releases">Download for Windows</a> &middot; <a href="#getting-started">Getting started</a> &middot; <a href="#development">Development</a></p>
 
-![Kaarnegar dashboard](docs/dashboard.png)
+![Kaarnegar English dashboard in light mode](docs/dashboard.png)
 
 Kaarnegar keeps everyday time tracking simple: name your task, start the timer, and turn your saved work into a clear report. Everything stays on your computer. No account, server, or internet connection is required to use the app.
 
@@ -28,6 +28,13 @@ Kaarnegar keeps everyday time tracking simple: name your task, start the timer, 
 | Backup and restore | Export your work history to JSON and restore it on another computer. |
 
 English is the default language. The application also supports Persian. Change the language in Settings; your selection is saved for the next launch.
+
+<details>
+<summary>English workspace and profile settings</summary>
+
+![English workspace and profile settings](docs/settings.png)
+
+</details>
 
 ## Getting started
 
@@ -50,7 +57,7 @@ Use the widget button in the window header to switch between the full dashboard 
 
 Choose **Dark** in Settings for a calmer workspace, or **System** to follow Windows. The same theme carries through the dashboard, reports, calendar, dialogs, and compact timer.
 
-![Kaarnegar dark theme](docs/dark-dashboard.png)
+![Kaarnegar English dashboard in dark mode](docs/dark-dashboard.png)
 
 <p align="center"><img src="docs/widget-dark.png" width="380" alt="Dark compact timer" /></p>
 
@@ -71,9 +78,7 @@ Choose **Quit app** from the tray menu to exit completely. The timer is saved an
 
 ## Reports
 
-![English report filtered by organization and project](docs/english-reports.png)
-
-![Time and earnings reports](docs/reports.png)
+![English time and earnings reports](docs/english-reports.png)
 
 Reports combine saved task details, organization/project assignments, total time, currency totals, and a chart of time spent per task. Date, search, organization, and project filters also apply to the exported PDF. Filenames use Jalali dates in Persian and Gregorian dates in English. The bundled Arad font is embedded in exported PDFs, so text renders without installing fonts on the recipient's computer.
 

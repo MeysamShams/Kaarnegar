@@ -4,7 +4,7 @@ const fs=require('node:fs'),path=require('node:path'),os=require('node:os');
 const artifacts=path.resolve('test-artifacts');fs.mkdirSync(artifacts,{recursive:true});
 const userDir=fs.mkdtempSync(path.join(os.tmpdir(),'kaarnegar-workspace-'));
 const now=new Date(),today=[now.getFullYear(),String(now.getMonth()+1).padStart(2,'0'),String(now.getDate()).padStart(2,'0')].join('-');
-fs.writeFileSync(path.join(userDir,'work-data.json'),JSON.stringify({version:1,name:'Jane Doe',rate:250000,active:null,entries:[{id:'legacy',title:'Legacy work',date:today,rate:250000,durationMs:3600000,source:'manual',createdAt:1}]}));
+fs.writeFileSync(path.join(userDir,'work-data.json'),JSON.stringify({version:1,name:'Meysam Shams',rate:250000,active:null,entries:[{id:'legacy',title:'Legacy work',date:today,rate:250000,durationMs:3600000,source:'manual',createdAt:1}]}));
 const pdf=path.join(artifacts,'workspace-english.pdf'),errors=[];
 let app;
 const stored=()=>JSON.parse(fs.readFileSync(path.join(userDir,'work-data.json'),'utf8'));

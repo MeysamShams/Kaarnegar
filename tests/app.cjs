@@ -90,7 +90,7 @@ async function launch(compact=false){const env={...process.env,KAARNEGAR_DATA_DI
  await page.locator('#language').selectOption('fa');
  await page.waitForFunction(()=>document.documentElement.lang==='fa');
  const orgId=(await page.evaluate(()=>window.desktop.load())).state.organizations[0].id;
- await page.getByPlaceholder('نام و نام خانوادگی').fill('مریم احمدی');
+ await page.getByPlaceholder('نام و نام خانوادگی').fill('میثم شمس');
  await page.getByRole('textbox',{name:'دستمزد ساعتی',exact:true}).fill('۲۵۰۰۰۰');
  await page.getByRole('button',{name:'ذخیرهٔ تنظیمات'}).click();
  await page.getByRole('status').filter({hasText:'تنظیمات ذخیره شد.'}).waitFor();
