@@ -1,0 +1,86 @@
+const { app, BrowserWindow, ipcMain, dialog, powerMonitor, Menu } = require('electron');
+const fs = require('node:fs');
+const path = require('node:path');
+const { validate } = require('./validation.cjs');
+if (process.env.KAARNEGAR_DATA_DIR) app.setPath('userData', process.env.KAARNEGAR_DATA_DIR);
+const locked = app.requestSingleInstanceLock();
+if (!locked) app.quit();
+let win, state, loadError = '', compact = false, normalBounds;
+const dataPath = () => path.join(app.getPath('userData'), 'work-data.json');
+function write(s) {
+  validate(s);
+  const p = dataPath(); fs.mkdirSync(path.dirname(p), { recursive: true });
+  if (fs.existsSync(p)) fs.copyFileSync(p, p + '.bak');
+  fs.writeFileSync(p + '.tmp', JSON.stringify(s, null, 2), 'utf8');
+  fs.renameSync(p + '.tmp', p); state = s;
+}
+function pause() {
+  if (state?.active?.runningSince !== null && state?.active) {
+    const a = state.active;
+    write({ ...state, active: { ...a, segments: [...a.segments, { start: a.runningSince, end: Math.max(a.runningSince, Date.now()) }], runningSince: null } });
+    if (win && !win.isDestroyed()) win.webContents.send('state', state);
+  }
+}
+function read() {
+  for (const p of [dataPath(), dataPath() + '.bak']) {
+    if (!fs.existsSync(p)) continue;
+    try { state = validate(JSON.parse(fs.readFileSync(p, 'utf8'))); if (p.endsWith('.bak')) loadError = 'اطلاعات از نسخهٔ پشتیبان بازیابی شد.'; return; }
+    catch { loadError = 'فایل اطلاعات آسیب دیده است. فایل اصلی محفوظ است؛ از تنظیمات نسخهٔ پشتیبان را وارد کنید.'; }
+  }
+  state = { version: 1, rate: 0, name: '', entries: [], active: null };
+  if (loadError && fs.existsSync(dataPath())) fs.copyFileSync(dataPath(), dataPath() + '.damaged-' + Date.now());
+}
+if (locked) app.whenReady().then(() => {
+  read();
+  // A normally closed app pauses before exit. An interrupted process resumes as paused at its last saved boundary.
+  if (state.active?.runningSince != null) {
+    state = { ...state, active: { ...state.active, runningSince: null } }; write(state);
+    loadError = 'زمان‌سنج پس از بسته‌شدن غیرمنتظره، در حالت مکث بازیابی شد. زمان تأییدنشده را می‌توانید دستی اضافه کنید.';
+  }
+  Menu.setApplicationMenu(null);
+  win = new BrowserWindow({ width: 1320, height: 900, minWidth: 1000, minHeight: 720, title: 'کارنگار', backgroundColor: '#f5f6f8', autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: false } });
+  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  win.webContents.on('will-navigate', event => event.preventDefault());
+  win.loadFile(path.join(__dirname, '../dist/index.html'));
+  win.on('close', () => { try { pause(); } catch (e) { dialog.showErrorBox('خطا در ذخیره', e.message); } });
+  powerMonitor.on('suspend', () => { try { pause(); } catch (e) { dialog.showErrorBox('خطا در ذخیره', e.message); } });
+  ipcMain.handle('load', () => ({ state, warning: loadError, dataPath: dataPath() }));
+  ipcMain.handle('save', (_, s) => { write(s); return true; });
+  ipcMain.handle('widget', (_, value) => {
+    compact = !!value;
+    if (compact) { normalBounds = win.getBounds(); win.setMinimumSize(390, 360); win.setSize(430, 430); win.setAlwaysOnTop(true); }
+    else { win.setAlwaysOnTop(false); win.setMinimumSize(1000, 720); if (normalBounds) win.setBounds(normalBounds); }
+    return compact;
+  });
+  ipcMain.handle('backup', async () => {
+    const result = await dialog.showSaveDialog(win, { title: 'ذخیرهٔ نسخهٔ پشتیبان', defaultPath: 'kaarnegar-backup.json', filters: [{ name: 'نسخهٔ پشتیبان', extensions: ['json'] }] });
+    if (result.canceled) return false;
+    fs.writeFileSync(result.filePath, JSON.stringify(state, null, 2), 'utf8'); return true;
+  });
+  ipcMain.handle('import', async () => {
+    if (state.active) throw Error('ابتدا زمان‌سنج را متوقف و ذخیره کنید.');
+    const result = await dialog.showOpenDialog(win, { title: 'بازیابی نسخهٔ پشتیبان', properties: ['openFile'], filters: [{ name: 'نسخهٔ پشتیبان', extensions: ['json'] }] });
+    if (result.canceled) return null;
+    const p = result.filePaths[0]; if (fs.statSync(p).size > 30e6) throw Error('حجم فایل بیش از حد مجاز است.');
+    const imported = validate(JSON.parse(fs.readFileSync(p, 'utf8')));
+    if (imported.active) imported.active.runningSince = null;
+    write(imported); return imported;
+  });
+  ipcMain.handle('pdf', async (_, html) => {
+    if (typeof html !== 'string' || html.length > 10e6) throw Error('گزارش بیش از حد بزرگ است.');
+    const result = process.env.KAARNEGAR_TEST_PDF ? { filePath: process.env.KAARNEGAR_TEST_PDF } : await dialog.showSaveDialog(win, { title: 'ذخیرهٔ گزارش PDF', defaultPath: 'گزارش-کارنگار.pdf', filters: [{ name: 'PDF', extensions: ['pdf'] }] });
+    if (result.canceled) return false;
+    const font = fs.readFileSync(path.join(__dirname, '../dist/fonts/Arad-Regular.woff2')).toString('base64');
+    const bold = fs.readFileSync(path.join(__dirname, '../dist/fonts/Arad-Bold.woff2')).toString('base64');
+    const pdfWin = new BrowserWindow({ show: false, webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, javascript: true } });
+    pdfWin.webContents.session.webRequest.onBeforeRequest({ urls: ['http://*/*','https://*/*'] }, (_, cb) => cb({ cancel: true }));
+    try {
+      await pdfWin.loadURL('data:text/html;charset=utf-8,' + encodeURIComponent(html.replace('/* FONT */', `@font-face{font-family:Arad;src:url("data:font/woff2;base64,${font}") format("woff2");font-weight:400}@font-face{font-family:Arad;src:url("data:font/woff2;base64,${bold}") format("woff2");font-weight:600 900}`)));
+      await pdfWin.webContents.executeJavaScript('Promise.all([document.fonts.load("14px Arad"),document.fonts.load("700 14px Arad")]).then(() => document.fonts.ready).then(() => true)');
+      const buffer = await pdfWin.webContents.printToPDF({ printBackground: true, pageSize: 'A4', preferCSSPageSize: true });
+      fs.writeFileSync(result.filePath, buffer); return true;
+    } finally { pdfWin.destroy(); }
+  });
+});
+app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.show(); win.focus(); } });
+app.on('window-all-closed', () => app.quit());

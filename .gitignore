@@ -1,0 +1,9 @@
+node_modules/
+dist/
+release/
+test-artifacts/
+*.log
+electron-runtime.zip
+work-data.json*
+kaarnegar-backup*.json
+*.tmp
