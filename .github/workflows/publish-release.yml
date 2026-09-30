@@ -1,0 +1,61 @@
+name: Publish Windows release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag
+        required: true
+        default: v1.0.2
+      build_run_id:
+        description: Successful Windows build run for this tag
+        required: true
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_TAG: ${{ inputs.tag }}
+      BUILD_RUN_ID: ${{ inputs.build_run_id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - name: Verify successful build matches the release tag
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $build = gh api "repos/$env:GITHUB_REPOSITORY/actions/runs/$env:BUILD_RUN_ID" | ConvertFrom-Json
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot read build run.' }
+          $commit = git rev-parse HEAD
+          if ($build.conclusion -ne 'success' -or $build.head_sha -ne $commit -or $build.name -ne 'Build Windows app') {
+            throw 'Build must be successful and match this release tag.'
+          }
+          $draft = gh release view $env:RELEASE_TAG --json isDraft --jq '.isDraft'
+          if ($LASTEXITCODE -ne 0 -or $draft -ne 'true') { throw 'An existing draft release is required.' }
+      - uses: actions/download-artifact@v4
+        with:
+          name: Kaarnegar-Windows
+          path: release
+          run-id: ${{ inputs.build_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload verified build and publish the draft
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = (Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json).version
+          if ($env:RELEASE_TAG -ne "v$version") { throw 'Release tag and app version must match.' }
+          Move-Item -LiteralPath release/Kaarnegar.exe -Destination "release/Kaarnegar-$version.exe"
+          $files = @(Get-ChildItem -LiteralPath release -Filter '*.exe')
+          if ($files.Count -ne 2) { throw 'Expected installer and portable executable.' }
+          $sums = foreach ($file in $files) {
+            (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + $file.Name
+          }
+          Set-Content -LiteralPath release/SHA256SUMS.txt -Value $sums -Encoding ascii
+          $assets = @($files.FullName) + @((Resolve-Path -LiteralPath release/SHA256SUMS.txt).Path)
+          gh release upload $env:RELEASE_TAG @assets --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Release file upload failed.' }
+          gh release edit $env:RELEASE_TAG --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Publishing release failed.' }
