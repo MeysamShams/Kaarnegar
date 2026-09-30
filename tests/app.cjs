@@ -5,10 +5,11 @@ const path=require('node:path');
 const os=require('node:os');
 const artifacts=path.resolve('test-artifacts');fs.mkdirSync(artifacts,{recursive:true});
 const userDir=fs.mkdtempSync(path.join(os.tmpdir(),'kaarnegar-test-'));
+fs.writeFileSync(path.join(userDir,'preferences.json'),JSON.stringify({language:'fa'}));
 const pdf=path.join(artifacts,'گزارش-آزمایشی.pdf');
 let app;
 const errors=[];
-async function launch(){const env={...process.env,KAARNEGAR_DATA_DIR:userDir,KAARNEGAR_TEST_PDF:pdf};delete env.ELECTRON_RUN_AS_NODE;const executablePath=process.env.KAARNEGAR_TEST_EXECUTABLE;app=await electron.launch({executablePath,args:executablePath?[]:[path.resolve('.')],env});const page=await app.firstWindow();page.on('pageerror',e=>errors.push(e.message));await page.getByRole('heading',{name:'زمان خود را ارزشمند کنید.'}).waitFor();return page}
+async function launch(compact=false){const env={...process.env,KAARNEGAR_DATA_DIR:userDir,KAARNEGAR_TEST_PDF:pdf};delete env.ELECTRON_RUN_AS_NODE;const executablePath=process.env.KAARNEGAR_TEST_EXECUTABLE;app=await electron.launch({executablePath,args:executablePath?[]:[path.resolve('.')],env});const page=await app.firstWindow();page.on('pageerror',e=>errors.push(e.message));if(compact)await page.locator('.compact').waitFor();else await page.getByRole('heading',{name:'زمان خود را ارزشمند کنید.'}).waitFor();return page}
 (async()=>{try{
  let page=await launch();
  assert.equal(await page.evaluate(()=>document.documentElement.dir),'rtl');
@@ -51,12 +52,51 @@ async function launch(){const env={...process.env,KAARNEGAR_DATA_DIR:userDir,KAA
  await app.evaluate(({app})=>process.getBuiltinModule('module').createRequire(app.getAppPath()+'/package.json')('./electron/tray.cjs').getMenu().getMenuItemById('open-app').click());
  assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isVisible()),true);
  await page.getByRole('button',{name:'تنظیمات',exact:true}).click();
+ // Stub startup APIs so the test never edits this computer's login registration.
+ await app.evaluate(({app})=>{
+   let enabled=false; globalThis.startupCalls=[];
+   app.getLoginItemSettings=()=>({openAtLogin:enabled});
+   app.setLoginItemSettings=options=>{enabled=options.openAtLogin;globalThis.startupCalls.push(options)};
+ });
+ await page.locator('#theme').selectOption('dark');
+ await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');
+ assert.equal(await page.locator('.card').first().evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(25, 36, 47)');
+ await page.screenshot({path:path.join(artifacts,'settings-dark.png'),fullPage:true});
+ await page.locator('.startup-option input').check();
+ await page.waitForFunction(()=>!document.querySelector('#theme').disabled);
+ assert.equal(await app.evaluate(()=>globalThis.startupCalls.at(-1).openAtLogin),true);
+ await page.locator('.startup-option input').uncheck();
+ await page.waitForFunction(()=>!document.querySelector('#theme').disabled);
+ assert.equal(await app.evaluate(()=>globalThis.startupCalls.at(-1).openAtLogin),false);
+ await page.locator('#theme').selectOption('light');
+ await page.waitForFunction(()=>document.documentElement.dataset.theme==='light');
+ await page.locator('#theme').selectOption('system');
+ await page.waitForFunction(()=>!document.querySelector('#theme').disabled);
+ assert.equal(await app.evaluate(({nativeTheme})=>nativeTheme.themeSource),'system');
+ await page.emulateMedia({colorScheme:'dark'});
+ await page.waitForFunction(()=>document.documentElement.dataset.theme==='dark');
+ await page.emulateMedia({colorScheme:'light'});
+ await page.waitForFunction(()=>document.documentElement.dataset.theme==='light');
+ await page.locator('#theme').selectOption('dark');
+ await page.waitForFunction(()=>!document.querySelector('#theme').disabled);
+ assert.equal(await app.evaluate(({nativeTheme})=>nativeTheme.themeSource),'dark');
+ // Create a required organization using the English interface.
+ await page.locator('#language').selectOption('en');
+ await page.getByRole('button',{name:'Add organization',exact:true}).click();
+ await page.getByRole('textbox',{name:'Organization name',exact:true}).fill('General');
+ await page.getByRole('textbox',{name:'Organization hourly rate',exact:true}).fill('250000');
+ await page.getByRole('button',{name:'Save organization',exact:true}).click();
+ await page.getByRole('button',{name:'Add project',exact:true}).waitFor();
+ await page.locator('#language').selectOption('fa');
+ await page.waitForFunction(()=>document.documentElement.lang==='fa');
+ const orgId=(await page.evaluate(()=>window.desktop.load())).state.organizations[0].id;
  await page.getByPlaceholder('نام و نام خانوادگی').fill('مریم احمدی');
  await page.getByRole('textbox',{name:'دستمزد ساعتی',exact:true}).fill('۲۵۰۰۰۰');
  await page.getByRole('button',{name:'ذخیرهٔ تنظیمات'}).click();
  await page.getByRole('status').filter({hasText:'تنظیمات ذخیره شد.'}).waitFor();
  await page.getByRole('button',{name:'ثبت زمان',exact:true}).click();
  await page.getByRole('button',{name:'ثبت دستی زمان',exact:true}).first().click();
+ await page.getByRole('dialog').locator('select').first().selectOption(orgId);
  await page.getByRole('textbox',{name:'عنوان ثبت دستی'}).fill('طراحی رابط کاربری');
  await page.getByRole('textbox',{name:'ساعت',exact:true}).fill('۱');
  await page.getByRole('textbox',{name:'دقیقه',exact:true}).fill('۳۰');
@@ -64,6 +104,7 @@ async function launch(){const env={...process.env,KAARNEGAR_DATA_DIR:userDir,KAA
  await page.getByRole('dialog').waitFor({state:'hidden'});
  let stored=JSON.parse(fs.readFileSync(path.join(userDir,'work-data.json'),'utf8'));
  assert.equal(stored.entries[0].durationMs,5400000);assert.equal(stored.entries[0].rate,250000);
+ await page.locator('.timer-card .assignment-fields select').first().selectOption(orgId);
  await page.getByRole('textbox',{name:'عنوان فعالیت',exact:true}).fill('برنامه‌نویسی کارنگار');
  await page.getByRole('button',{name:/شروع فعالیت/}).click();
  await page.waitForTimeout(1300);
@@ -142,6 +183,22 @@ async function launch(){const env={...process.env,KAARNEGAR_DATA_DIR:userDir,KAA
  await page.getByRole('dialog').waitFor({state:'hidden'});
  stored=JSON.parse(fs.readFileSync(path.join(userDir,'work-data.json'),'utf8'));
  assert.ok(!stored.entries.some(e=>e.title==='برنامه‌نویسی کارنگار'));
+ // Persist compact dimensions across a full process exit, then restore full mode.
+ await page.getByRole('button',{name:'ویجت کوچک'}).click();
+ await page.locator('.compact').waitFor();
+ await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(470,460));
+ await page.waitForTimeout(250);
+ const compactSize=await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].getSize());
+ await page.screenshot({path:path.join(artifacts,'widget-dark.png')});
+ await app.close();
+ page=await launch(true);
+ assert.equal(await page.evaluate(()=>document.documentElement.dataset.theme),'dark');
+ const restored=await app.evaluate(({BrowserWindow})=>{const w=BrowserWindow.getAllWindows()[0];return {size:w.getSize(),top:w.isAlwaysOnTop()}});
+ assert.equal(restored.top,true);assert.ok(Math.abs(restored.size[0]-compactSize[0])<=2,JSON.stringify({restored,compactSize}));assert.ok(Math.abs(restored.size[1]-compactSize[1])<=2,JSON.stringify({restored,compactSize}));
+ await page.getByRole('button',{name:'نمای کامل'}).click();
+ await page.locator('.sidebar').waitFor();
+ await app.close();page=await launch();
+ assert.equal(await page.locator('.compact').count(),0);
  assert.deepEqual(errors,[]);
  console.log('PASS: custom controls, hidden scrollbars, tray close/open/quit, hidden timer checkpoints, Persian PDF, salary, entries, widget, Jalali calendar and quit/reopen persistence.');
  console.log('Artifacts:',artifacts);

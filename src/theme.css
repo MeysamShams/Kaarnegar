@@ -1,0 +1,95 @@
+:root { color-scheme: light; --surface: #fff; --field: #fff; --text: #243449; --secondary: #657486; --soft: #f4f6f8; }
+.appearance-card { grid-column: 1 / -1; }
+.theme-select { width: 100%; max-width: 360px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--field); color: var(--text); }
+.theme-description { margin: 12px 0 22px; }
+.startup-option { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; padding-top: 20px; border-top: 1px solid var(--line); }
+.startup-option input { width: 18px; height: 18px; margin: 3px 0; accent-color: var(--teal); flex-shrink: 0; }
+.startup-option strong { display: block; font-size: 13px; }
+.startup-option small { display: block; color: var(--secondary); margin-top: 7px; line-height: 1.9; }
+:root[data-theme="dark"] { color-scheme: dark; background: #101820; color: #e3edf3; --surface: #19242f; --field: #121d27; --text: #e3edf3; --secondary: #a3b2c1; --soft: #202e3b; --teal: #319d88; --navy: #e3edf3; --muted: #a3b2c1; --line: #2c3a47; }
+[data-theme="dark"] .sidebar { background: #111c27; border-left: 1px solid var(--line); }
+[data-theme="dark"] .card,
+[data-theme="dark"] .topbar,
+[data-theme="dark"] .timer-card,
+[data-theme="dark"] .modal,
+[data-theme="dark"] .calendar { background: var(--surface); border-color: var(--line); box-shadow: 0 6px 24px #00000012; }
+[data-theme="dark"] .compact,
+[data-theme="dark"] .widget-heading { background: #101820; border-color: var(--line); }
+[data-theme="dark"] .form-label > input,
+[data-theme="dark"] .suffix-input,
+[data-theme="dark"] .duration-inputs input,
+[data-theme="dark"] .task-input,
+[data-theme="dark"] .date-trigger,
+[data-theme="dark"] .search { background: var(--field); border-color: var(--line); color: var(--text); }
+[data-theme="dark"] input::placeholder { color: #7f93a5; }
+[data-theme="dark"] .task-input input:disabled { color: #acd8cb; }
+[data-theme="dark"] .outline { background: var(--soft); border-color: #3c4d5c; color: #ccd9e4; }
+[data-theme="dark"] .outline:hover:not(:disabled) { background: #2b3e48; border-color: #588e80; }
+[data-theme="dark"] .icon-button:hover,
+[data-theme="dark"] .window-controls button:hover { background: #2a3d48; color: #86d8c2; }
+[data-theme="dark"] .window-controls .window-close:hover { background: #bb4c5b; color: #fff; }
+[data-theme="dark"] .window-controls .widget-toggle,
+[data-theme="dark"] .timer-symbol,
+[data-theme="dark"] .teal,
+[data-theme="dark"] .entry-icon { background: #223f3b; color: #83d8be; }
+[data-theme="dark"] .purple,
+[data-theme="dark"] .entry-icon.manual { background: #332e49; color: #c0a9f0; }
+[data-theme="dark"] .amber { background: #403729; color: #e0bc7a; }
+[data-theme="dark"] .timer-digits { color: #e0ede9; }
+[data-theme="dark"] .is-running .timer-digits,
+[data-theme="dark"] .widget-brand { color: #7cd4b9; }
+[data-theme="dark"] .timer-card.is-running { border-color: #448b78; box-shadow: 0 0 0 3px #319d8814; }
+[data-theme="dark"] .primary:hover:not(:disabled) { background: #278773; }
+[data-theme="dark"] .text-button { color: #76cfb5; }
+[data-theme="dark"] .text-button:hover { color: #abe8d5; }
+[data-theme="dark"] .stop-button { background: #3c2931; border-color: #5b3640; color: #f0a5aa; }
+[data-theme="dark"] .stop-button:hover { background: #4d303a; }
+[data-theme="dark"] .focus-card { background: radial-gradient(ellipse at top, #233e38, #192d2a); border-color: #314d43; }
+[data-theme="dark"] .focus-card h3 { color: #b9dfcf; }
+[data-theme="dark"] .focus-card p,
+[data-theme="dark"] .focus-card > .eyebrow { color: #9dbdb0; }
+[data-theme="dark"] .focus-card .text-button { color: #8bd7bb; }
+[data-theme="dark"] .orbit { border-color: #426457; }
+[data-theme="dark"] .art-clock { background: #1c302b; border-color: #53826c; }
+[data-theme="dark"] .hand,
+[data-theme="dark"] .clock-center { background: #91cfac; }
+[data-theme="dark"] .art-pill { background: #29483b; border-color: #426457; color: #bce8ce; }
+[data-theme="dark"] .day-heading,
+[data-theme="dark"] .preset-tabs,
+[data-theme="dark"] .count,
+[data-theme="dark"] .bar-track { background: var(--soft); border-color: var(--line); }
+[data-theme="dark"] .entries-table td,
+[data-theme="dark"] .timer-footer { border-color: var(--line); }
+[data-theme="dark"] .preset-tabs button.selected { background: #31463f; color: #a4e5d0; }
+[data-theme="dark"] .calendar-head select,
+[data-theme="dark"] .calendar-today { background: #263d35; color: #a4e5d0; }
+[data-theme="dark"] .calendar-grid button { color: var(--text); }
+[data-theme="dark"] .calendar-grid button:hover { background: #2d473e; }
+[data-theme="dark"] .calendar-grid button.selected { background: var(--teal); color: #fff; }
+[data-theme="dark"] .report-note { background: #1d2b3a; }
+[data-theme="dark"] .report-note h3 { color: #c5d8ea; }
+[data-theme="dark"] .note-icon { background: #2b3d50; color: #a6c4e3; }
+[data-theme="dark"] .settings-hint,
+[data-theme="dark"] .manual-total,
+[data-theme="dark"] .report-total,
+[data-theme="dark"] .notice { background: #213a31; border-color: #345546; color: #a8d6bc; }
+[data-theme="dark"] .manual-total strong { color: #a8e5c8; }
+[data-theme="dark"] .error-banner { background: #3d272c; border-color: #663b40; color: #f0b0aa; }
+[data-theme="dark"] .field-error { color: #f0aaa4; }
+[data-theme="dark"] .icon-button.delete:hover { background: #492c33; color: #f0a5aa; }
+[data-theme="dark"] .modal-backdrop { background: #060d17b3; }
+[data-theme="dark"] .amount { color: #91d7bb; }
+[data-theme="dark"] .empty > span { background: #253c34; color: #a6cdb8; }
+[data-theme="dark"] .empty h3 { color: #c1cfdb; }
+[data-theme="dark"] .form-label,
+[data-theme="dark"] .breadcrumb strong,
+[data-theme="dark"] .stat-label,
+[data-theme="dark"] .settings-description,
+[data-theme="dark"] .section-heading p,
+[data-theme="dark"] .page-heading p,
+[data-theme="dark"] .timer-subtitle,
+[data-theme="dark"] .modal-description,
+[data-theme="dark"] .entries-table th,
+[data-theme="dark"] .entries-table small,
+[data-theme="dark"] .app-footer,
+[data-theme="dark"] .report-footnote { color: var(--secondary); }

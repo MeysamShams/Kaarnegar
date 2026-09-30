@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('desktop', {
+  savePreferences: value => ipcRenderer.invoke('preferences', value),
   load: () => ipcRenderer.invoke('load'), save: state => ipcRenderer.invoke('save', state),
   exportPDF: (html, filename) => ipcRenderer.invoke('pdf', html, filename), backup: () => ipcRenderer.invoke('backup'),
   importBackup: () => ipcRenderer.invoke('import'), widget: compact => ipcRenderer.invoke('widget', compact),
