@@ -6,6 +6,8 @@
 
 - شروع، مکث، ادامه و توقف زمان‌سنج با عنوان فعالیت
 - ویجت کوچک همیشه روی پنجره‌ها
+- ادامهٔ زمان‌سنج در سینی سیستم پس از بستن پنجره، با منوی بازکردن و خروج
+- نوار عنوان اختصاصی با دکمه‌های بستن، کوچک‌کردن و بزرگ‌کردن/بازگرداندن اندازه، بدون نوار پیمایش نمایان
 - ثبت دستی، ویرایش و حذف زمان با تأیید حذف
 - نرخ ساعتی به تومان (IRT)، با حفظ نرخ هر ثبت
 - انتخاب تاریخ جلالی؛ بازه‌های امروز، هفته از شنبه، ماه شمسی و بازهٔ دلخواه
@@ -15,11 +17,11 @@
 
 ## نصب و اجرا
 
-برای نصب، `Kaarnegar-Setup-1.0.0.exe` را از بخش Releases گیت‌هاب دانلود و اجرا کنید. نصب‌کننده امکان انتخاب زبان فارسی یا انگلیسی و مسیر نصب را دارد و میان‌بر «کارنگار» را روی دسکتاپ و منوی شروع ایجاد می‌کند. برنامه و فایل اجرایی آن دارای آیکون اختصاصی هستند.
+برای نصب، `Kaarnegar-Setup-1.0.1.exe` را از بخش Releases گیت‌هاب دانلود و اجرا کنید. نصب‌کننده امکان انتخاب زبان فارسی یا انگلیسی و مسیر نصب را دارد و میان‌بر «کارنگار» را روی دسکتاپ و منوی شروع ایجاد می‌کند. برنامه و فایل اجرایی آن دارای آیکون اختصاصی هستند.
 
 برای اجرای بدون نصب، از نسخهٔ قابل‌حمل `Kaarnegar.exe` استفاده کنید. فایل‌های ساخته‌شده در پوشهٔ `release` قرار می‌گیرند. نیازی به Node.js، اینترنت یا نصب فونت ندارید؛ آراد در برنامه و فایل‌های PDF جاسازی شده است. حذف برنامه، اطلاعات کار را پاک نمی‌کند.
 
-در تنظیمات نام و نرخ ساعتی خود را ذخیره کنید، سپس عنوان فعالیت را وارد و زمان‌سنج را شروع کنید. «توقف و ذخیره» فعالیت را وارد گزارش می‌کند. مکث، بستن برنامه و خواب دستگاه، زمان‌سنج را مکث می‌کنند؛ برای ادامه دکمهٔ ادامه را بزنید.
+در تنظیمات نام و نرخ ساعتی خود را ذخیره کنید، سپس عنوان فعالیت را وارد و زمان‌سنج را شروع کنید. «توقف و ذخیره» فعالیت را وارد گزارش می‌کند. بستن پنجره یا Alt+F4 برنامه را در سینی سیستم نگه می‌دارد و زمان‌سنج ادامه پیدا می‌کند. روی آیکون کارنگار کنار ساعت ویندوز کلیک کنید یا از منوی راست‌کلیک «باز کردن برنامه» را انتخاب کنید. برای بستن کامل، «خروج از برنامه» را از همان منو بزنید؛ زمان‌سنج پیش از خروج ذخیره و مکث می‌شود. خواب دستگاه نیز زمان‌سنج را مکث می‌کند. با وجود پنهان‌بودن نوار پیمایش، پیمایش با چرخ ماوس، صفحه‌لمسی و صفحه‌کلید امکان‌پذیر است.
 
 نرخ فعالیت در زمان شروع یا ثبت دستی ذخیره می‌شود. تغییر تنظیمات نرخ، گزارش‌های قبلی یا زمان‌سنج جاری را تغییر نمی‌دهد. نرخ یک ثبت را می‌توانید از دکمهٔ ویرایش همان ثبت تغییر دهید.
 
@@ -63,11 +65,11 @@ Create an empty GitHub repository named `kaarnegar`, then run these commands ins
 ```powershell
 git remote add origin https://github.com/YOUR_USERNAME/kaarnegar.git
 git push -u origin main
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.0.1
+git push origin v1.0.1
 ```
 
-The included GitHub Actions workflow builds and tests on Windows when a version tag is pushed, or when run manually. Download the `Kaarnegar-Windows` artifact from Actions. Create a GitHub Release for `v1.0.0` and attach `Kaarnegar-Setup-1.0.0.exe` and `Kaarnegar.exe`. Build outputs and personal work data are excluded from Git; distribute binaries through Releases.
+The included GitHub Actions workflow builds and tests on Windows when a version tag is pushed, or when run manually. Download the `Kaarnegar-Windows` artifact from Actions. Create a GitHub Release for `v1.0.1` and attach `Kaarnegar-Setup-1.0.1.exe` and `Kaarnegar.exe`. Build outputs and personal work data are excluded from Git; distribute binaries through Releases.
 
 The generated executables are unsigned. To distribute signed builds, configure your Windows code-signing credentials and enable `build.win.signExecutable`. The source repository contains no signing certificates or account credentials.
 

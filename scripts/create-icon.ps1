@@ -48,4 +48,5 @@ for ($i = 0; $i -lt $sizes.Length; $i++) {
 foreach ($bytes in $images) { $writer.Write([byte[]]$bytes) }
 $writer.Dispose(); $file.Dispose()
 Copy-Item -LiteralPath (Join-Path $resourceDir 'icon.png') -Destination (Join-Path $PSScriptRoot '..\public\icon.png')
+Copy-Item -LiteralPath (Join-Path $resourceDir 'icon.ico') -Destination (Join-Path $PSScriptRoot '..\public\icon.ico')
 Write-Output 'Created multi-resolution Windows icon and app PNG.'

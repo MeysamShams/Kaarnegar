@@ -2,10 +2,11 @@ const { app, BrowserWindow, ipcMain, dialog, powerMonitor, Menu } = require('ele
 const fs = require('node:fs');
 const path = require('node:path');
 const { validate } = require('./validation.cjs');
+const { initializeTray, showApp, destroyTray } = require('./tray.cjs');
 if (process.env.KAARNEGAR_DATA_DIR) app.setPath('userData', process.env.KAARNEGAR_DATA_DIR);
 const locked = app.requestSingleInstanceLock();
 if (!locked) app.quit();
-let win, state, loadError = '', compact = false, normalBounds;
+let win, state, loadError = '', compact = false, normalBounds, normalMaximized = false, quitting = false;
 const dataPath = () => path.join(app.getPath('userData'), 'work-data.json');
 function write(s) {
   validate(s);
@@ -32,24 +33,48 @@ function read() {
 }
 if (locked) app.whenReady().then(() => {
   read();
-  // A normally closed app pauses before exit. An interrupted process resumes as paused at its last saved boundary.
+  // Explicit quitting pauses before exit. Interrupted processes restore the last checkpoint as paused.
   if (state.active?.runningSince != null) {
     state = { ...state, active: { ...state.active, runningSince: null } }; write(state);
     loadError = 'زمان‌سنج پس از بسته‌شدن غیرمنتظره، در حالت مکث بازیابی شد. زمان تأییدنشده را می‌توانید دستی اضافه کنید.';
   }
   Menu.setApplicationMenu(null);
-  win = new BrowserWindow({ width: 1320, height: 900, minWidth: 1000, minHeight: 720, title: 'کارنگار', icon: path.join(__dirname, '../dist/icon.png'), backgroundColor: '#f5f6f8', autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: false } });
+  win = new BrowserWindow({ width: 1320, height: 900, minWidth: 1000, minHeight: 720, frame: false, title: 'کارنگار', icon: path.join(__dirname, '../dist/icon.png'), backgroundColor: '#f5f6f8', autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: false } });
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', event => event.preventDefault());
   win.loadFile(path.join(__dirname, '../dist/index.html'));
-  win.on('close', () => { try { pause(); } catch (e) { dialog.showErrorBox('خطا در ذخیره', e.message); } });
+  initializeTray(win, () => app.quit());
+  win.on('maximize', () => win.webContents.send('window-maximized', true));
+  win.on('unmaximize', () => win.webContents.send('window-maximized', false));
+  win.on('close', event => {
+    if (!quitting) { event.preventDefault(); win.hide(); }
+  });
+  // Windows shutdown may skip before-quit; persist the timer at its session-end boundary too.
+  win.on('query-session-end', event => {
+    try { pause(); } catch (e) { event.preventDefault(); dialog.showErrorBox('خطا در ذخیره', e.message); }
+  });
+  win.on('session-end', () => { quitting = true; destroyTray(); });
   powerMonitor.on('suspend', () => { try { pause(); } catch (e) { dialog.showErrorBox('خطا در ذخیره', e.message); } });
   ipcMain.handle('load', () => ({ state, warning: loadError, dataPath: dataPath() }));
   ipcMain.handle('save', (_, s) => { write(s); return true; });
+  ipcMain.handle('window-control', (_, action) => {
+    if (action === 'minimize') win.minimize();
+    else if (action === 'close') win.close();
+    else if (action === 'maximize') { if (win.isMaximized()) win.unmaximize(); else win.maximize(); }
+  });
+  ipcMain.handle('window-maximized', () => win.isMaximized());
   ipcMain.handle('widget', (_, value) => {
     compact = !!value;
-    if (compact) { normalBounds = win.getBounds(); win.setMinimumSize(390, 360); win.setSize(430, 430); win.setAlwaysOnTop(true); }
-    else { win.setAlwaysOnTop(false); win.setMinimumSize(1000, 720); if (normalBounds) win.setBounds(normalBounds); }
+    if (compact) {
+      normalBounds = win.getNormalBounds(); normalMaximized = win.isMaximized();
+      if (normalMaximized) win.unmaximize();
+      win.setMinimumSize(390, 360); win.setSize(430, 430); win.setAlwaysOnTop(true);
+    } else {
+      if (win.isMaximized()) win.unmaximize();
+      win.setAlwaysOnTop(false); win.setMinimumSize(1000, 720);
+      if (normalBounds) win.setBounds(normalBounds);
+      if (normalMaximized) win.maximize();
+    }
     return compact;
   });
   ipcMain.handle('backup', async () => {
@@ -82,5 +107,9 @@ if (locked) app.whenReady().then(() => {
     } finally { pdfWin.destroy(); }
   });
 });
-app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.show(); win.focus(); } });
+app.on('before-quit', event => {
+  try { pause(); quitting = true; destroyTray(); }
+  catch (e) { event.preventDefault(); quitting = false; showApp(); dialog.showErrorBox('خطا در ذخیره', e.message); }
+});
+app.on('second-instance', showApp);
 app.on('window-all-closed', () => app.quit());

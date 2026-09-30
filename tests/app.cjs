@@ -14,6 +14,38 @@ async function launch(){const env={...process.env,KAARNEGAR_DATA_DIR:userDir,KAA
  assert.equal(await page.evaluate(()=>document.documentElement.dir),'rtl');
  await page.evaluate(()=>document.fonts.ready);
  assert.equal(await page.evaluate(()=>document.fonts.check('14px Arad')),true);
+ assert.equal(await page.locator('.local-badge').count(),0);
+ await page.getByRole('button',{name:'بستن پنجره',exact:true}).waitFor();
+ assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).scrollbarWidth),'none');
+ const trayInfo=await app.evaluate(({app})=>{
+   const tray=process.getBuiltinModule('module').createRequire(app.getAppPath()+'/package.json')('./electron/tray.cjs');
+   return {exists:!tray.getTray().isDestroyed(),items:tray.getMenu().items.filter(i=>i.type!=='separator').map(i=>({id:i.id,label:i.label}))};
+ });
+ assert.equal(trayInfo.exists,true);
+ assert.deepEqual(trayInfo.items,[{id:'open-app',label:'باز کردن برنامه'},{id:'quit-app',label:'خروج از برنامه'}]);
+ await page.getByRole('button',{name:'بزرگ کردن پنجره',exact:true}).click();
+ await page.getByRole('button',{name:'بازگرداندن اندازهٔ پنجره',exact:true}).waitFor();
+ assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isMaximized()),true);
+ // Entering the widget restores its compact size; returning restores the maximized app.
+ await page.getByRole('button',{name:'ویجت کوچک'}).click();
+ await page.locator('.compact').waitFor();
+ assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isMaximized()),false);
+ await page.getByRole('button',{name:'نمای کامل'}).click();
+ await page.getByRole('button',{name:'بازگرداندن اندازهٔ پنجره',exact:true}).waitFor();
+ assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isMaximized()),true);
+ await page.getByRole('button',{name:'بازگرداندن اندازهٔ پنجره',exact:true}).click();
+ await page.getByRole('button',{name:'بزرگ کردن پنجره',exact:true}).waitFor();
+ assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isMaximized()),false);
+ // Native maximize/restore events must update the custom icon as well.
+ await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].maximize());
+ await page.getByRole('button',{name:'بازگرداندن اندازهٔ پنجره',exact:true}).waitFor();
+ await page.getByRole('button',{name:'بازگرداندن اندازهٔ پنجره',exact:true}).click();
+ await page.getByRole('button',{name:'بزرگ کردن پنجره',exact:true}).waitFor();
+ await page.getByRole('button',{name:'کوچک کردن پنجره',exact:true}).click();
+ await page.waitForTimeout(350);
+ assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isMinimized()),true);
+ await app.evaluate(({app})=>process.getBuiltinModule('module').createRequire(app.getAppPath()+'/package.json')('./electron/tray.cjs').getMenu().getMenuItemById('open-app').click());
+ assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isVisible()),true);
  await page.getByRole('button',{name:'تنظیمات',exact:true}).click();
  await page.getByPlaceholder('نام و نام خانوادگی').fill('مریم احمدی');
  await page.getByRole('textbox',{name:'دستمزد ساعتی',exact:true}).fill('۲۵۰۰۰۰');
@@ -72,9 +104,27 @@ async function launch(){const env={...process.env,KAARNEGAR_DATA_DIR:userDir,KAA
  await page.getByRole('textbox',{name:'عنوان فعالیت',exact:true}).fill('کار ادامه‌دار');
  await page.getByRole('button',{name:/شروع فعالیت/}).click();
  await page.waitForTimeout(1100);
- // Closing the native window must persist a paused timer.
+ // Custom close hides to tray, keeps elapsed time advancing, and still checkpoints while hidden.
+ const elapsedBeforeHide=await page.locator('.timer-digits').innerText();
+ await page.getByRole('button',{name:'بستن پنجره',exact:true}).click();
+ assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isVisible()),false);
+ stored=JSON.parse(fs.readFileSync(path.join(userDir,'work-data.json'),'utf8'));
+ assert.notEqual(stored.active.runningSince,null);
+ const checkpointBeforeHide=stored.active.runningSince;
+ await page.waitForTimeout(16000);
+ stored=JSON.parse(fs.readFileSync(path.join(userDir,'work-data.json'),'utf8'));
+ assert.ok(stored.active.runningSince>checkpointBeforeHide,'Hidden timer must keep saving checkpoints');
+ await app.evaluate(({app})=>process.getBuiltinModule('module').createRequire(app.getAppPath()+'/package.json')('./electron/tray.cjs').getMenu().getMenuItemById('open-app').click());
+ assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isVisible()),true);
+ assert.notEqual(await page.locator('.timer-digits').innerText(),elapsedBeforeHide);
+ await page.getByRole('button',{name:'مکث',exact:true}).waitFor();
+ // Alt+F4 / native close uses the same hide-to-tray behavior.
  await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].close());
- await app.close().catch(()=>{});
+ assert.equal(await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].isVisible()),false);
+ // The real tray Quit action must terminate and preserve a paused timer.
+ const closed=app.waitForEvent('close');
+ await app.evaluate(({app})=>setTimeout(()=>process.getBuiltinModule('module').createRequire(app.getAppPath()+'/package.json')('./electron/tray.cjs').getMenu().getMenuItemById('quit-app').click(),20));
+ await closed;
  stored=JSON.parse(fs.readFileSync(path.join(userDir,'work-data.json'),'utf8'));
  assert.equal(stored.active.runningSince,null);assert.ok(stored.active.segments.length>0);
  page=await launch();
@@ -89,6 +139,6 @@ async function launch(){const env={...process.env,KAARNEGAR_DATA_DIR:userDir,KAA
  stored=JSON.parse(fs.readFileSync(path.join(userDir,'work-data.json'),'utf8'));
  assert.ok(!stored.entries.some(e=>e.title==='برنامه‌نویسی کارنگار'));
  assert.deepEqual(errors,[]);
- console.log('PASS: Persian font/RTL, salary, manual entry/edit/delete, timer pause/resume, widget, Jalali calendar, PDF, persistence and close/reopen.');
+ console.log('PASS: custom controls, hidden scrollbars, tray close/open/quit, hidden timer checkpoints, Persian PDF, salary, entries, widget, Jalali calendar and quit/reopen persistence.');
  console.log('Artifacts:',artifacts);
 }finally{if(app)await app.close().catch(()=>{})}})().catch(e=>{console.error(e);process.exitCode=1});
