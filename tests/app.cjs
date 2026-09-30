@@ -15,6 +15,10 @@ async function launch(){const env={...process.env,KAARNEGAR_DATA_DIR:userDir,KAA
  await page.evaluate(()=>document.fonts.ready);
  assert.equal(await page.evaluate(()=>document.fonts.check('14px Arad')),true);
  assert.equal(await page.locator('.local-badge').count(),0);
+ assert.equal(await page.locator('.window-titlebar').count(),0);
+ assert.equal(await page.locator('.topbar .date-field, .topbar input, .topbar .topbar-right').count(),0);
+ assert.equal(await page.locator('.topbar .window-controls button').count(),4);
+ assert.equal(await page.getByRole('button',{name:'ویجت کوچک',exact:true}).innerText(),'');
  await page.getByRole('button',{name:'بستن پنجره',exact:true}).waitFor();
  assert.equal(await page.evaluate(()=>getComputedStyle(document.documentElement).scrollbarWidth),'none');
  const trayInfo=await app.evaluate(({app})=>{

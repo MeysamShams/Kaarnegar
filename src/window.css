@@ -2,30 +2,22 @@
 * { scrollbar-width: none; }
 *::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
-.desktop-app { padding-top: 40px; }
-.desktop-app .sidebar { top: 40px; }
-.window-titlebar {
-  position: fixed;
-  inset: 0 0 auto;
-  height: 40px;
-  z-index: 25;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-right: 19px;
-  color: #6e8b80;
-  background: #f5f8f6;
-  border-bottom: 1px solid #e4ebe7;
+.desktop-app .topbar,
+.desktop-app .widget-heading {
+  position: sticky;
+  top: 0;
+  z-index: 15;
   user-select: none;
   -webkit-app-region: drag;
   app-region: drag;
 }
-.window-brand { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 600; }
-.window-controls { display: flex; height: 100%; direction: ltr; -webkit-app-region: no-drag; app-region: no-drag; }
+.widget-heading { background: #f4f7f5; }
+.window-controls { display: flex; align-items: center; gap: 4px; direction: ltr; -webkit-app-region: no-drag; app-region: no-drag; }
 .window-controls button {
-  width: 46px;
+  width: 34px;
+  height: 34px;
   padding: 0;
-  border-radius: 0;
+  border-radius: 7px;
   background: transparent;
   color: #84978e;
   -webkit-app-region: no-drag;
@@ -35,4 +27,4 @@
 .window-controls .window-close:hover { background: #cc5d66; color: white; }
 .window-controls button:focus-visible { outline-offset: -4px; }
 .window-controls button:active { transform: none; }
-.compact .window-titlebar { background: #f4f7f5; }
+.window-controls .widget-toggle { margin-left: 6px; background: #edf5f1; color: #488571; }
