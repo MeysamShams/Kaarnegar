@@ -38,7 +38,7 @@ if (locked) app.whenReady().then(() => {
     loadError = 'زمان‌سنج پس از بسته‌شدن غیرمنتظره، در حالت مکث بازیابی شد. زمان تأییدنشده را می‌توانید دستی اضافه کنید.';
   }
   Menu.setApplicationMenu(null);
-  win = new BrowserWindow({ width: 1320, height: 900, minWidth: 1000, minHeight: 720, title: 'کارنگار', backgroundColor: '#f5f6f8', autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: false } });
+  win = new BrowserWindow({ width: 1320, height: 900, minWidth: 1000, minHeight: 720, title: 'کارنگار', icon: path.join(__dirname, '../dist/icon.png'), backgroundColor: '#f5f6f8', autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.cjs'), contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: false } });
   win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
   win.webContents.on('will-navigate', event => event.preventDefault());
   win.loadFile(path.join(__dirname, '../dist/index.html'));

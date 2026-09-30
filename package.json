@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "description": "Persian offline time tracker with Jalali reports",
-  "author": "Kaarnegar",
+  "author": "Meysam Shams",
+  "license": "MIT",
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
@@ -11,7 +12,9 @@
     "start": "electron .",
     "test": "tsx --test tests/model.test.ts",
     "test:app": "node tests/app.cjs",
-    "package": "npm run build && electron-builder --win portable"
+    "icons": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-icon.ps1",
+    "package": "npm run build && electron-builder --win --x64",
+    "package:portable": "npm run build && electron-builder --win portable --x64"
   },
   "dependencies": {
     "jalaali-js": "^1.2.8",
@@ -26,7 +29,6 @@
     "@vitejs/plugin-react": "^5.0.0",
     "electron": "^44.5.1",
     "electron-builder": "^26.0.12",
-    "fontkit": "^2.0.4",
     "playwright": "^1.55.0",
     "tsx": "^4.20.0",
     "typescript": "^5.9.0",
@@ -35,6 +37,8 @@
   "build": {
     "appId": "ir.kaarnegar.desktop",
     "productName": "Kaarnegar",
+    "copyright": "Copyright © 2026 Meysam Shams",
+    "beforeBuild": "scripts/before-build.cjs",
     "directories": {
       "output": "release"
     },
@@ -44,11 +48,32 @@
       "package.json"
     ],
     "win": {
-      "target": "portable",
-      "signAndEditExecutable": false
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "icon": "build/icon.ico",
+      "signExecutable": false
     },
     "portable": {
       "artifactName": "Kaarnegar.exe"
+    },
+    "nsis": {
+      "artifactName": "Kaarnegar-Setup-${version}.exe",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "کارنگار",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "installerLanguages": [
+        "fa_IR",
+        "en_US"
+      ],
+      "displayLanguageSelector": true,
+      "deleteAppDataOnUninstall": false
     }
   }
 }
