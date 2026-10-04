@@ -4,8 +4,8 @@
 
 <h1 align="center">Kaarnegar</h1>
 <p align="center">Make your time count.</p>
-<p align="center">An offline Windows time tracker for organizations and projects, with Persian and English interfaces, local reports, and multiple currencies.</p>
-<p align="center"><a href="../../releases">Download for Windows</a> &middot; <a href="#getting-started">Getting started</a> &middot; <a href="#development">Development</a></p>
+<p align="center">An offline Windows and Linux time tracker for organizations and projects, with Persian and English interfaces, local reports, and multiple currencies.</p>
+<p align="center"><a href="../../releases">Download for Windows or Linux</a> &middot; <a href="#getting-started">Getting started</a> &middot; <a href="#development">Development</a></p>
 
 ![Kaarnegar English dashboard in light mode](docs/dashboard.png)
 
@@ -22,7 +22,7 @@ Kaarnegar keeps everyday time tracking simple: name your task, start the timer, 
 | Rates & currencies | Set organization rates and optional project overrides. Track IRT, IRR, USD, EUR, GBP, CAD, AUD, AED, CHF, JPY, and TRY. Each task keeps its recorded rate and currency. |
 | Languages | Switch between Persian (RTL, Jalali calendar) and English (LTR, Gregorian calendar). The interface, tray, and PDF reports follow your language. |
 | Compact widget | Keep a small, always-on-top timer nearby. Your last window mode and size return on the next launch. |
-| Themes | Choose Light, Dark, or System. Dark mode uses charcoal surfaces and soft teal accents; System follows Windows automatically. |
+| Themes | Choose Light, Dark, or System. Dark mode uses charcoal surfaces and soft teal accents; System follows your desktop automatically. |
 | Windows startup | Enable the startup checkbox in Settings to open Kaarnegar when you sign in to Windows. |
 | System tray | Close the window while your timer keeps running. Reopen or quit from the tray menu. |
 | Reports | Filter by date, organization, and project. Search tasks, compare tracked time, and see separate totals for each currency. |
@@ -40,12 +40,14 @@ English is the default language. The application also supports Persian. Change t
 
 ## Getting started
 
-Download a Windows x64 build from [Releases](../../releases):
+Download an x64 build from [Releases](../../releases):
 
 - **Installer:** `Kaarnegar-Setup-<version>.exe` lets you choose an installation folder and creates desktop and Start menu shortcuts. The installer supports English and Persian.
-- **Portable:** `Kaarnegar.exe` runs without installation. Keep it in a stable location if you enable Windows startup, since Windows launches that executable path.
+- **Windows portable:** `Kaarnegar-<version>.exe` runs without installation. Keep it in a stable location if you enable Windows startup, since Windows launches that executable path.
+- **Linux AppImage:** `Kaarnegar-<version>-x86_64.AppImage` runs without installation. Make it executable with `chmod +x Kaarnegar-<version>-x86_64.AppImage`, then open it. The AppImage runtime requires FUSE 2; use the Debian package if your system does not provide it.
+- **Linux Debian package:** `Kaarnegar-<version>-amd64.deb` installs on Ubuntu, Debian, and compatible distributions. Install with `sudo apt install ./Kaarnegar-<version>-amd64.deb`.
 
-You do not need Node.js or a separate font installation to run either build.
+You do not need Node.js or a separate font installation to run these downloads. Linux tray visibility depends on your desktop's support for application indicators. If the tray is hidden, opening Kaarnegar again restores the running window. Automatic startup from Settings is available on Windows.
 
 1. Open **Settings** and choose your language and theme. Optionally enable **Launch at Windows startup**. These preferences save immediately.
 2. Add an **organization**, its hourly rate, and its currency. Add projects when you want to track work separately.
@@ -57,7 +59,7 @@ Use the widget button in the window header to switch between the full dashboard 
 
 ### Dark theme and compact mode
 
-Choose **Dark** in Settings for a calmer workspace, or **System** to follow Windows. The same theme carries through the dashboard, reports, calendar, dialogs, and compact timer.
+Choose **Dark** in Settings for a calmer workspace, or **System** to follow your desktop. The same theme carries through the dashboard, reports, calendar, dialogs, and compact timer.
 
 ![Kaarnegar English dashboard in dark mode](docs/dark-dashboard.png)
 
@@ -65,7 +67,7 @@ Choose **Dark** in Settings for a calmer workspace, or **System** to follow Wind
 
 ### Closing and quitting
 
-Closing the window or pressing Alt+F4 hides Kaarnegar in the Windows system tray. An active timer continues running and saving checkpoints. Click the tray icon or choose **Open app** from its menu to return.
+Closing the window or pressing Alt+F4 hides Kaarnegar in the system tray. An active timer continues running and saving checkpoints. Click the tray icon or choose **Open app** from its menu to return. Opening Kaarnegar again also restores the running window.
 
 Choose **Quit app** from the tray menu to exit completely. The timer is saved and paused before exit. Putting the computer to sleep also pauses the timer.
 
@@ -91,6 +93,8 @@ PDFs use the title **Work summary report** (**گزارش میزان کارکرد
 
 Work history is stored locally in `work-data.json` inside the app's user-data folder, normally `%APPDATA%\kaarnegar`. Settings shows the exact location. The previous version of the work file is retained as `work-data.json.bak` before each write.
 
+On Linux the default data directory is `~/.config/kaarnegar`, or the corresponding directory under `XDG_CONFIG_HOME` when configured.
+
 Organizations and projects are included in work-history backups. Existing history from earlier versions is automatically assigned to a **General** organization, preserving its original rates, durations, and toman currency. Referenced organizations and projects cannot be deleted until their entries are reassigned or removed.
 
 Theme, language, and window preferences are stored separately in `preferences.json`. Windows manages the startup registration. Work-history backups do not transfer these device preferences or startup registration.
@@ -101,7 +105,7 @@ Export backups regularly to another location. **Restoring a backup replaces your
 
 ## Development
 
-Use **Windows** and **Node.js 22 or newer** for development and packaging.
+Use **Windows or Linux** and **Node.js 22 or newer** for development. GitHub Actions packages Windows on a Windows runner and Linux on an Ubuntu runner, using Node.js 24.
 
 ```powershell
 npm ci
@@ -118,6 +122,7 @@ npm start
 | `npm run test:app` | Run the original Electron workflow and the organizations/currencies/English workflow. Build first. |
 | `npm run package` | Build the Windows x64 installer and portable executable. |
 | `npm run package:portable` | Build only the portable executable. |
+| `npm run package:linux` | Build Linux x64 AppImage and Debian packages on Linux. |
 | `npm run icons` | Regenerate Windows icon assets using PowerShell. |
 
 If PowerShell blocks `npm.ps1`, use `npm.cmd` in these commands.
@@ -152,7 +157,14 @@ To test an installed or portable executable, set `KAARNEGAR_TEST_EXECUTABLE` to 
 
 ### Building a release
 
-Build outputs are written to `release/`. The included GitHub Actions workflows automate Windows builds and release publishing. Tests are optional through the manual build's `run_tests` input; tag builds skip tests. See [the workflows](.github/workflows) for their triggers.
+Build outputs are written to `release/`. [Build desktop apps](.github/workflows/desktop-build.yml) builds Windows and Linux downloads on GitHub when a `v*` tag is pushed. It can also be started manually from the Actions tab. Tests are optional through the manual build's `run_tests` input; tag builds skip tests.
+
+To publish a release without building on your own computer:
+
+1. Update the version in `package.json` and `package-lock.json`, add release notes, and push the commit and its `v<version>` tag.
+2. Wait for both jobs in **Build desktop apps** to succeed and note the workflow run ID from its URL.
+3. Create a draft GitHub release for that tag.
+4. Run [Publish desktop release](.github/workflows/publish-release.yml) from the Actions tab with the tag and successful build run ID. It verifies the tagged commit, attaches the Windows installer, Windows portable app, Linux AppImage, Debian package, and combined `SHA256SUMS.txt`, then publishes the draft.
 
 The NSIS build helper handles the Persian/Farsi language-name mismatch, and `build/installer.nsh` supplies missing Persian installer strings. Bundled icon assets cover Windows sizes from 16 to 256 pixels.
 

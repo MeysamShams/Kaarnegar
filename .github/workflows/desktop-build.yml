@@ -1,0 +1,55 @@
+name: Build desktop apps
+on:
+  workflow_dispatch:
+    inputs:
+      run_tests:
+        description: Run unit and desktop integration tests
+        type: boolean
+        default: false
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+jobs:
+  build:
+    name: Build ${{ matrix.platform }} x64
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: Windows
+            os: windows-latest
+            package_script: package
+            files: |
+              release/Kaarnegar-Setup-*.exe
+              release/Kaarnegar.exe
+          - platform: Linux
+            os: ubuntu-22.04
+            package_script: package:linux
+            files: |
+              release/Kaarnegar-*.AppImage
+              release/Kaarnegar-*.deb
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install Linux packaging tools
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y libarchive-tools
+      - run: npm ci
+      - run: npm test
+        if: inputs.run_tests == true
+      - run: npm run build
+      - run: npm run test:app
+        if: inputs.run_tests == true && runner.os == 'Windows'
+      - run: npm run ${{ matrix.package_script }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Kaarnegar-${{ matrix.platform }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error

@@ -12,7 +12,7 @@ function showApp() {
 function initializeTray(win, quit, language='fa') {
   window = win;
   quitApp = quit;
-  tray = new Tray(path.join(__dirname, '../dist/icon.ico'));
+  tray = new Tray(path.join(__dirname, process.platform==='win32'?'../dist/icon.ico':'../dist/icon.png'));
   updateTrayLanguage(language);
   tray.on('click', showApp);
   tray.on('double-click', showApp);

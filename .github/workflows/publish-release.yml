@@ -1,13 +1,13 @@
-name: Publish Windows release
+name: Publish desktop release
 on:
   workflow_dispatch:
     inputs:
       tag:
         description: Existing release tag
         required: true
-        default: v1.0.3
+        default: v1.0.7
       build_run_id:
-        description: Successful Windows build run for this tag
+        description: Successful Windows and Linux build run for this tag
         required: true
 permissions:
   contents: write
@@ -30,14 +30,15 @@ jobs:
           $build = gh api "repos/$env:GITHUB_REPOSITORY/actions/runs/$env:BUILD_RUN_ID" | ConvertFrom-Json
           if ($LASTEXITCODE -ne 0) { throw 'Cannot read build run.' }
           $commit = git rev-parse HEAD
-          if ($build.conclusion -ne 'success' -or $build.head_sha -ne $commit -or $build.name -ne 'Build Windows app') {
+          if ($build.conclusion -ne 'success' -or $build.head_sha -ne $commit -or $build.name -ne 'Build desktop apps' -or $build.path -ne '.github/workflows/desktop-build.yml') {
             throw 'Build must be successful and match this release tag.'
           }
           $draft = gh release view $env:RELEASE_TAG --json isDraft --jq '.isDraft'
           if ($LASTEXITCODE -ne 0 -or $draft -ne 'true') { throw 'An existing draft release is required.' }
       - uses: actions/download-artifact@v4
         with:
-          name: Kaarnegar-Windows
+          pattern: Kaarnegar-*
+          merge-multiple: true
           path: release
           run-id: ${{ inputs.build_run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -48,8 +49,11 @@ jobs:
           $version = (Get-Content -LiteralPath package.json -Raw | ConvertFrom-Json).version
           if ($env:RELEASE_TAG -ne "v$version") { throw 'Release tag and app version must match.' }
           Move-Item -LiteralPath release/Kaarnegar.exe -Destination "release/Kaarnegar-$version.exe"
-          $files = @(Get-ChildItem -LiteralPath release -Filter '*.exe')
-          if ($files.Count -ne 2) { throw 'Expected installer and portable executable.' }
+          $expected = @("Kaarnegar-Setup-$version.exe", "Kaarnegar-$version.exe", "Kaarnegar-$version-x86_64.AppImage", "Kaarnegar-$version-amd64.deb")
+          foreach ($name in $expected) {
+            if (-not (Test-Path -LiteralPath (Join-Path release $name) -PathType Leaf)) { throw "Missing release asset: $name" }
+          }
+          $files = @($expected | ForEach-Object { Get-Item -LiteralPath (Join-Path release $_) })
           $sums = foreach ($file in $files) {
             (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + $file.Name
           }

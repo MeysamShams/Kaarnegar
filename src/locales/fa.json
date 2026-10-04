@@ -110,5 +110,6 @@
   "Choose start and end times; work duration is calculated automatically.": "زمان شروع و پایان را انتخاب کنید؛ مدت کار به‌صورت خودکار محاسبه می‌شود.",
   "This older entry has no recorded clock times. Adjust the suggested interval before saving.": "زمان شروع و پایان این ثبت قدیمی ذخیره نشده است. پیش از ذخیره، بازهٔ پیشنهادی را تنظیم کنید.",
   "For overnight work, choose the next day as the end date. Paused time is excluded.": "برای کار پس از نیمه‌شب، تاریخ پایان را روز بعد انتخاب کنید. زمان مکث در محاسبه منظور نمی‌شود.",
-  "Adjust when this task started. Paused time is excluded.": "زمان شروع این فعالیت را تنظیم کنید. زمان مکث در محاسبه منظور نمی‌شود."
+  "Adjust when this task started. Paused time is excluded.": "زمان شروع این فعالیت را تنظیم کنید. زمان مکث در محاسبه منظور نمی‌شود.",
+  "System theme follows your desktop's light and dark settings.": "پوستهٔ سیستم با تنظیمات روشن یا تیرهٔ محیط دسکتاپ تغییر می‌کند."
 }

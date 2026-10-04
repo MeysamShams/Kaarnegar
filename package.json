@@ -1,9 +1,10 @@
 {
   "name": "kaarnegar",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "private": true,
   "description": "Persian offline time tracker with Jalali reports",
   "author": "Meysam Shams",
+  "homepage": "https://github.com/MeysamShams/Kaarnegar",
   "license": "MIT",
   "main": "electron/main.cjs",
   "scripts": {
@@ -14,7 +15,8 @@
     "test:app": "node tests/app.cjs && node tests/workspace-app.cjs",
     "icons": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-icon.ps1",
     "package": "npm run build && electron-builder --win --x64 --publish never",
-    "package:portable": "npm run build && electron-builder --win portable --x64 --publish never"
+    "package:portable": "npm run build && electron-builder --win portable --x64 --publish never",
+    "package:linux": "npm run build && electron-builder --linux --x64 --publish never"
   },
   "dependencies": {
     "jalaali-js": "^1.2.8",
@@ -57,6 +59,17 @@
     },
     "portable": {
       "artifactName": "Kaarnegar.exe"
+    },
+    "linux": {
+      "target": ["AppImage", "deb"],
+      "icon": "build/icon.png",
+      "category": "Office",
+      "executableName": "kaarnegar",
+      "maintainer": "Meysam Shams",
+      "artifactName": "Kaarnegar-${version}-${arch}.${ext}"
+    },
+    "deb": {
+      "recommends": ["libayatana-appindicator3-1"]
     },
     "nsis": {
       "artifactName": "Kaarnegar-Setup-${version}.exe",

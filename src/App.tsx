@@ -164,8 +164,8 @@ function AppearanceSettings({preferences,busy,update}:{preferences:Preferences;b
     <select id="theme" className="theme-select" value={preferences.theme} disabled={busy} onChange={e=>void update({theme:e.target.value as Preferences['theme']})}>
       <option value="light">{t("روشن")}</option><option value="dark">{t("تیره")}</option><option value="system">{t("هماهنگ با سیستم")}</option>
     </select>
-    <p className="settings-description theme-description">{t("پوستهٔ سیستم با تنظیمات روشن یا تیرهٔ ویندوز تغییر می‌کند.")}</p>
-    <label className="startup-option"><input type="checkbox" checked={preferences.launchOnStartup} disabled={busy||!window.desktop} onChange={e=>void update({launchOnStartup:e.target.checked})}/><span><strong>{t("اجرای برنامه هنگام ورود به ویندوز")}</strong><small>{t("پس از روشن کردن دستگاه و ورود به حساب، کارنگار باز می‌شود.")}</small></span></label>
+    <p className="settings-description theme-description">{t("System theme follows your desktop's light and dark settings.")}</p>
+    {window.desktop?.platform==='win32'&&<label className="startup-option"><input type="checkbox" checked={preferences.launchOnStartup} disabled={busy} onChange={e=>void update({launchOnStartup:e.target.checked})}/><span><strong>{t("اجرای برنامه هنگام ورود به ویندوز")}</strong><small>{t("پس از روشن کردن دستگاه و ورود به حساب، کارنگار باز می‌شود.")}</small></span></label>}
     <div className="settings-hint"><Minimize2 size={18}/><p>{t("حالت ویجت یا نمای کامل و اندازهٔ پنجره به‌صورت خودکار ذخیره می‌شود و در اجرای بعدی برمی‌گردد.")}</p></div>
   </section>;
 }
