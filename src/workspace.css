@@ -16,7 +16,11 @@
 .theme-select, .form-label select, .calendar-head select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238a97a6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-size: 14px; background-position: right 14px center; padding-inline-end: 40px; }
 [dir="rtl"] .theme-select, [dir="rtl"] .form-label select, [dir="rtl"] .calendar-head select { background-position: left 14px center; }
 .assignment-fields input { margin-top: 8px; }
-.report-filters .assignment-fields { margin: 0 0 20px; }
+.report-filter-fields { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: end; gap: 12px; }
+.report-filters .assignment-fields { margin: 0; }
+.report-filter-fields .filter-row, .report-filter-fields .assignment-fields { min-width: 0; }
+.report-filter-fields .date-field { min-width: 0; flex: 1; }
+.report-filter-fields .search { flex: 1.1; min-width: 0; max-width: none; margin: 0; }
 .modal .assignment-fields { margin-bottom: 20px; }
 .task-assignment { font-size: 11px; color: var(--secondary); margin: 12px 0 0; overflow-wrap: anywhere; }
 .language-select { margin-bottom: 22px; }
@@ -50,7 +54,9 @@
 [dir="ltr"] .entries-table th:first-child, [dir="ltr"] .entries-table td:first-child { padding-right: 15px; padding-left: 23px; }
 [dir="ltr"] .search { margin-right: 0; margin-left: auto; }
 [dir="ltr"] .calendar { right: auto; left: 0; }
+.calendar-scrim.portal { z-index: 39; }
+.calendar.portal { position: fixed; right: auto; z-index: 40; max-height: calc(100vh - 16px); overflow-y: auto; }
 [dir="ltr"] .breadcrumb > svg, [dir="ltr"] .nav-chevron { transform: rotate(180deg); }
 [dir="ltr"] h1 { letter-spacing: -.8px; }
 @media(max-width:1120px) { [dir="ltr"] main { margin-left: 205px; } .workspace-columns { gap: 18px; } }
-@media(max-width:750px) { [dir="ltr"] main { margin: 0; } .workspace-columns { grid-template-columns: 1fr; } .workspace-form { padding: 16px; } }
+@media(max-width:750px) { [dir="ltr"] main { margin: 0; } .workspace-columns, .report-filter-fields { grid-template-columns: 1fr; } .report-filter-fields .filter-row { flex-wrap: wrap; } .workspace-form { padding: 16px; } }

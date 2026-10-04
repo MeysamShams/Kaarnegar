@@ -2,7 +2,7 @@ import { dateLabel, duration, latin, money, moneySummary, totals, type Entry, ty
 import { language, t, withLanguage, type Language } from './i18n';
 export const escape = (s: string) => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 export function reportFilename(start:string,end:string,lang:Language=language()) {
-  return withLanguage(lang,()=>`${latin(dateLabel(start)).replaceAll('/','-')}_${latin(dateLabel(end)).replaceAll('/','-')}.pdf`);
+  return withLanguage(lang,()=>`${latin(dateLabel(start)).replaceAll('/','-')}_${lang==='fa'?'تا':'to'}_${latin(dateLabel(end)).replaceAll('/','-')}.pdf`);
 }
 type ReportOptions={language?:Language;organizations?:Organization[];projects?:Project[];organizationId?:string;projectId?:string};
 export function reportHTML(entries:Entry[],start:string,end:string,name:string,options:ReportOptions={}) {
