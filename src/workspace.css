@@ -22,6 +22,25 @@
 .language-select { margin-bottom: 22px; }
 .stat-value strong { overflow-wrap: anywhere; font-size: 24px; }
 .entry-assignment { color: var(--teal) !important; }
+.task-title-picker { position: relative; }
+.timer-card { overflow: visible; }
+.task-suggestions { position: absolute; inset-inline: 0; top: calc(100% + 5px); z-index: 8; padding: 5px; max-height: 230px; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 9px; box-shadow: 0 8px 24px #142c4020; }
+.task-suggestions button { display: block; width: 100%; padding: 9px 11px; text-align: start; background: transparent; color: var(--text); border-radius: 6px; }
+.task-suggestions button:hover, .task-suggestions button.selected { background: var(--soft); }
+.task-suggestions strong, .task-suggestions small { display: block; overflow-wrap: anywhere; }
+.task-suggestions strong { font-size: 12px; }
+.task-suggestions small { margin-top: 3px; font-size: 10px; color: var(--secondary); }
+.modal .task-title-picker { margin-top: 9px; }
+.modal .task-input { margin-bottom: 0; }
+.time-range-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.time-range-fields > div { min-width: 0; }
+.time-range-fields .date-field { min-width: 0; }
+.time-range-fields input[type="time"] { font-size: 14px; padding: 10px 7px; }
+.time-entry-hint { color: var(--secondary); font-size: 10px; line-height: 1.9; margin-bottom: 18px; }
+.calculated-duration { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 15px; margin-bottom: 18px; background: var(--soft); border-radius: 8px; color: var(--secondary); font-size: 12px; }
+.calculated-duration strong { color: var(--text); font-variant-numeric: tabular-nums; font-size: 17px; }
+.timer-start-time { display: flex; width: 100%; justify-content: center; margin-top: 8px; font-size: 10px; white-space: normal; }
+.entry-clock { display: block; margin-top: 4px; font-size: 9px; color: var(--secondary); }
 [dir="ltr"] .sidebar { left: 0; right: auto; border-left: 0; }
 [dir="ltr"] main { margin-right: 0; margin-left: 235px; }
 [dir="ltr"] .compact main { margin: 0; }

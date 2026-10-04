@@ -15,7 +15,9 @@ Kaarnegar keeps everyday time tracking simple: name your task, start the timer, 
 
 | Feature | What you can do |
 | --- | --- |
-| Time tracking | Start, pause, resume, and save a task; add or edit time manually. |
+| Time tracking | Start, pause, resume, and save a task; edit start/end times, including a running timer's start. |
+| Task suggestions | Type a title or choose a matching previous task with its organization and project. |
+| Manual entries | Choose start/end dates and times; duration and earnings are calculated automatically. |
 | Organizations & projects | Define organizations, add optional projects, and assign every task to an organization. |
 | Rates & currencies | Set organization rates and optional project overrides. Track IRT, IRR, USD, EUR, GBP, CAD, AUD, AED, CHF, JPY, and TRY. Each task keeps its recorded rate and currency. |
 | Languages | Switch between Persian (RTL, Jalali calendar) and English (LTR, Gregorian calendar). The interface, tray, and PDF reports follow your language. |
@@ -47,8 +49,8 @@ You do not need Node.js or a separate font installation to run either build.
 
 1. Open **Settings** and choose your language and theme. Optionally enable **Launch at Windows startup**. These preferences save immediately.
 2. Add an **organization**, its hourly rate, and its currency. Add projects when you want to track work separately.
-3. On the timer page, enter a task title, select the required organization and an optional project, then start tracking.
-4. Use **Pause** for a break, or **Stop and save** to add the task to your reports. Manual entries also require an organization.
+3. On the timer page, type a task title or choose a previous task suggestion to fill in its title, organization, and project. Select the required organization and an optional project, then start tracking.
+4. Use **Pause** for a break, or **Stop and save** to add the task to your reports. Click the timer's start time to adjust it. Manual entries also require an organization and calculate duration from start/end dates and times.
 5. Open **Reports**, choose a date range and organization/project filters, and export the matching entries to PDF.
 
 Use the widget button in the window header to switch between the full dashboard and compact mode. Kaarnegar remembers both sizes, the window position, and whether the full window was maximized.
@@ -73,14 +75,17 @@ Choose **Quit app** from the tray menu to exit completely. The timer is saved an
 - Entries keep their recorded rate and currency, including when organization/project settings change. A manual entry can override the inherited rate.
 - Earnings use the exact tracked duration. IRT, IRR, and JPY display whole units; other supported currencies display up to two decimal places. **Reports total each currency separately and never perform currency conversion.**
 - The profile default rate is a starting value for new organizations. It does not change existing organization or project rates.
-- Tasks crossing midnight are split by the computer's local date. Reports include saved entries; stop and save the current task to include it.
-- A manual entry can contain up to 24 hours. Add separate entries for work spanning multiple days.
+- Timers crossing midnight are split by the computer's local date. Reports include saved entries; stop and save the current task to include it.
+- A manual entry can contain up to 24 hours of work. For overnight work, select the following day as its end date; it is reported under its start date.
+- Saved entries can be edited using start/end dates and times. Timer pauses remain excluded from duration and earnings. Older entries only stored duration, so their edit form offers a suggested interval to adjust before saving.
 
 ## Reports
 
 ![English time and earnings reports](docs/english-reports.png)
 
 Reports combine saved task details, organization/project assignments, total time, currency totals, and a chart of time spent per task. Date, search, organization, and project filters also apply to the exported PDF. Filenames use Jalali dates in Persian and Gregorian dates in English. The bundled Arad font is embedded in exported PDFs, so text renders without installing fonts on the recipient's computer.
+
+PDFs use the title **Work summary report** (**گزارش میزان کارکرد** in Persian), with task details, dates, durations, and amounts. Organization/project labels and the brand tagline are omitted.
 
 ## Your data
 
