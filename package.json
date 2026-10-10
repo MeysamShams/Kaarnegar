@@ -11,7 +11,7 @@
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
     "start": "electron .",
-    "test": "tsx --test tests/model.test.ts tests/preferences.test.cjs tests/workspace.test.ts",
+    "test": "tsx --test tests/model.test.ts tests/preferences.test.cjs tests/sync.test.cjs tests/workspace.test.ts",
     "test:app": "node tests/app.cjs && node tests/workspace-app.cjs",
     "icons": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/create-icon.ps1",
     "package": "npm run build && electron-builder --win --x64 --publish never",

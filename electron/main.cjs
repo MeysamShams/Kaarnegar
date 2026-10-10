@@ -17,6 +17,9 @@ const {
   startupEnabled,
 } = require("./preferences.cjs");
 const { validate } = require("./validation.cjs");
+const { syncFolder } = require("./sync.cjs");
+const os = require("node:os");
+const crypto = require("node:crypto");
 const {
   initializeTray,
   updateTrayLanguage,
@@ -94,6 +97,57 @@ function write(s) {
   fs.writeFileSync(p + ".tmp", JSON.stringify(s, null, 2), "utf8");
   fs.renameSync(p + ".tmp", p);
   state = s;
+  scheduleSync();
+}
+const syncMetaPath = () => path.join(app.getPath("userData"), "sync-state.json");
+let syncStatus = { enabled: false, lastSync: null, devices: 0, error: "" },
+  syncTimer,
+  syncRunning = false;
+const publicSync = () => ({
+  folder: preferences?.syncFolder ?? "",
+  ...syncStatus,
+  enabled: !!preferences?.syncFolder,
+});
+function scheduleSync(delay = 3000) {
+  if (!preferences?.syncFolder) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => runSync(), delay);
+}
+function runSync() {
+  const folder = preferences?.syncFolder;
+  if (!folder || syncRunning || !state) return publicSync();
+  syncRunning = true;
+  try {
+    let meta = { known: {}, deleted: {}, seen: {} };
+    try {
+      meta = JSON.parse(fs.readFileSync(syncMetaPath(), "utf8"));
+    } catch {}
+    const result = syncFolder({
+      folder,
+      deviceId: preferences.deviceId,
+      deviceName: os.hostname(),
+      local: state,
+      meta,
+    });
+    if (result.changed) {
+      // Keep this device's timer; only shared organizations, projects, and entries come from other devices.
+      const merged = validate({ ...result.state, active: state.active });
+      const p = dataPath();
+      if (fs.existsSync(p)) fs.copyFileSync(p, p + ".bak");
+      fs.writeFileSync(p + ".tmp", JSON.stringify(merged, null, 2), "utf8");
+      fs.renameSync(p + ".tmp", p);
+      state = merged;
+      if (win && !win.isDestroyed()) win.webContents.send("synced", state);
+    }
+    fs.writeFileSync(syncMetaPath(), JSON.stringify(result.meta), "utf8");
+    syncStatus = { lastSync: result.lastSync, devices: result.devices, error: "" };
+  } catch (e) {
+    syncStatus = { ...syncStatus, error: e.message };
+  } finally {
+    syncRunning = false;
+  }
+  if (win && !win.isDestroyed()) win.webContents.send("sync-status", publicSync());
+  return publicSync();
 }
 function pause() {
   if (state?.active?.runningSince !== null && state?.active) {
@@ -248,6 +302,35 @@ if (locked)
         );
       }
     });
+    if (!preferences.deviceId) {
+      preferences = { ...preferences, deviceId: crypto.randomUUID() };
+      writePreferences(preferencesPath(), preferences);
+    }
+    runSync();
+    setInterval(() => runSync(), 60000);
+    ipcMain.handle("sync-status", () => publicSync());
+    ipcMain.handle("sync-now", () => runSync());
+    ipcMain.handle("sync-choose", async (_, disable) => {
+      if (disable === true) {
+        preferences = { ...preferences, syncFolder: undefined };
+        writePreferences(preferencesPath(), preferences);
+        syncStatus = { enabled: false, lastSync: null, devices: 0, error: "" };
+        return publicSync();
+      }
+      const result = await dialog.showOpenDialog(win, {
+        title: nativeText("پوشهٔ همگام‌سازی", "Choose sync folder"),
+        properties: ["openDirectory", "createDirectory"],
+      });
+      if (result.canceled) return publicSync();
+      const folder = result.filePaths[0];
+      fs.accessSync(folder, fs.constants.R_OK | fs.constants.W_OK);
+      preferences = { ...preferences, syncFolder: folder };
+      writePreferences(preferencesPath(), preferences);
+      try {
+        fs.unlinkSync(syncMetaPath());
+      } catch {}
+      return runSync();
+    });
     ipcMain.handle("load", () => ({
       state,
       warning: loadError,
@@ -258,6 +341,7 @@ if (locked)
         launchOnStartup: launchOnStartup(),
         compact,
       },
+      sync: publicSync(),
     }));
     ipcMain.handle("save", (_, s) => {
       write(s);
