@@ -5,6 +5,8 @@ function normalize(value = {}) {
   const result = { ...defaults };
   if (['light', 'dark', 'system'].includes(value.theme)) result.theme = value.theme;
   if (['fa','en'].includes(value.language)) result.language=value.language;
+  if (typeof value.syncFolder === 'string' && value.syncFolder.length < 1024) result.syncFolder = value.syncFolder;
+  if (typeof value.deviceId === 'string' && /^[A-Za-z0-9-]{8,64}$/.test(value.deviceId)) result.deviceId = value.deviceId;
   result.compact = value.compact === true;
   result.normalMaximized = value.normalMaximized === true;
   for (const key of ['normalBounds', 'compactBounds']) {

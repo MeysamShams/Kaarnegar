@@ -201,5 +201,17 @@
   "AED": "AED - UAE dirham",
   "CHF": "CHF - Swiss franc",
   "JPY": "JPY - Japanese yen",
-  "TRY": "TRY - Turkish lira"
+  "TRY": "TRY - Turkish lira",
+  "Cloud sync": "Cloud sync",
+  "Share your work time between computers through Dropbox, Google Drive, or any synced folder.": "Share your work time between computers through Dropbox, Google Drive, or any synced folder.",
+  "Last synced {0} · {1} other device(s)": "Last synced {0} · {1} other device(s)",
+  "Not synced yet.": "Not synced yet.",
+  "Sync now": "Sync now",
+  "Change folder": "Change folder",
+  "Turn off": "Turn off",
+  "Choose a folder inside your Dropbox or Google Drive directory. Use the same folder on every computer.": "Choose a folder inside your Dropbox or Google Drive directory. Use the same folder on every computer.",
+  "Choose sync folder": "Choose sync folder",
+  "Organizations, projects, and time entries are merged across devices. A running timer stays on its own device. If two devices edit the same entry, the most recent sync wins.": "Organizations, projects, and time entries are merged across devices. A running timer stays on its own device. If two devices edit the same entry, the most recent sync wins.",
+  "en-US": "en-US",
+  "Sync folder is not available": "Sync folder is not available"
 }

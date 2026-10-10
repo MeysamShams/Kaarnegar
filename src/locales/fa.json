@@ -111,5 +111,17 @@
   "This older entry has no recorded clock times. Adjust the suggested interval before saving.": "زمان شروع و پایان این ثبت قدیمی ذخیره نشده است. پیش از ذخیره، بازهٔ پیشنهادی را تنظیم کنید.",
   "For overnight work, choose the next day as the end date. Paused time is excluded.": "برای کار پس از نیمه‌شب، تاریخ پایان را روز بعد انتخاب کنید. زمان مکث در محاسبه منظور نمی‌شود.",
   "Adjust when this task started. Paused time is excluded.": "زمان شروع این فعالیت را تنظیم کنید. زمان مکث در محاسبه منظور نمی‌شود.",
-  "System theme follows your desktop's light and dark settings.": "پوستهٔ سیستم با تنظیمات روشن یا تیرهٔ محیط دسکتاپ تغییر می‌کند."
+  "System theme follows your desktop's light and dark settings.": "پوستهٔ سیستم با تنظیمات روشن یا تیرهٔ محیط دسکتاپ تغییر می‌کند.",
+  "Cloud sync": "همگام‌سازی ابری",
+  "Share your work time between computers through Dropbox, Google Drive, or any synced folder.": "زمان کار خود را از طریق Dropbox، Google Drive یا هر پوشهٔ همگام‌شده بین رایانه‌ها به اشتراک بگذارید.",
+  "Last synced {0} · {1} other device(s)": "آخرین همگام‌سازی {0} · {1} دستگاه دیگر",
+  "Not synced yet.": "هنوز همگام‌سازی نشده است.",
+  "Sync now": "همگام‌سازی اکنون",
+  "Change folder": "تغییر پوشه",
+  "Turn off": "خاموش کردن",
+  "Choose a folder inside your Dropbox or Google Drive directory. Use the same folder on every computer.": "پوشه‌ای داخل Dropbox یا Google Drive انتخاب کنید. در همهٔ رایانه‌ها همین پوشه را انتخاب کنید.",
+  "Choose sync folder": "انتخاب پوشهٔ همگام‌سازی",
+  "Organizations, projects, and time entries are merged across devices. A running timer stays on its own device. If two devices edit the same entry, the most recent sync wins.": "سازمان‌ها، پروژه‌ها و ثبت‌های زمان بین دستگاه‌ها ادغام می‌شوند. زمان‌سنج در حال اجرا روی همان دستگاه می‌ماند. اگر دو دستگاه یک ثبت را ویرایش کنند، آخرین همگام‌سازی معتبر است.",
+  "en-US": "fa-IR",
+  "Sync folder is not available": "پوشهٔ همگام‌سازی در دسترس نیست."
 }
